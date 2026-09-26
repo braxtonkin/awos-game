@@ -9,6 +9,7 @@ export type Upgrade = {
 
 export const upgrades = [
   { id: "woodenPickaxe", name: "Wooden pickaxe", cost: { wood: 10 }, perTick: { dirt: 1 } },
+  { id: "woodenAxe", name: "Wooden axe", cost: { wood: 15 }, perTick: { wood: 1 } },
 ] as const satisfies readonly Upgrade[];
 
 export type UpgradeId = (typeof upgrades)[number]["id"];

@@ -10,3 +10,9 @@ test("upgradeDetails shows the cost and what the upgrade makes each second", () 
     upgradeDetails({ id: "woodenPickaxe", name: "Wooden pickaxe", cost: { wood: 10 }, perTick: { dirt: 1 } }),
   ).toEqual(["Cost: 10 Wood", "Makes: 1 Dirt per second"]);
 });
+
+test("upgradeDetails shows the wooden axe cost and wood production", () => {
+  expect(
+    upgradeDetails({ id: "woodenAxe", name: "Wooden axe", cost: { wood: 15 }, perTick: { wood: 1 } }),
+  ).toEqual(["Cost: 15 Wood", "Makes: 1 Wood per second"]);
+});

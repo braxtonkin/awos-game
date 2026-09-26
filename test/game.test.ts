@@ -37,6 +37,20 @@ test("buying a wooden pickaxe without enough wood changes nothing", () => {
   });
 });
 
+test("buying a wooden axe with exactly 15 wood spends it and adds one axe", () => {
+  expect(buy({ amounts: { wood: 15 }, owned: {} }, "woodenAxe")).toEqual({
+    amounts: { wood: 0 },
+    owned: { woodenAxe: 1 },
+  });
+});
+
+test("a tick with two wooden axes adds 2 wood", () => {
+  expect(tick({ amounts: {}, owned: { woodenAxe: 2 } })).toEqual({
+    amounts: { wood: 2 },
+    owned: { woodenAxe: 2 },
+  });
+});
+
 test("a tick with no upgrades owned changes nothing", () => {
   expect(tick({ amounts: { wood: 5 }, owned: {} })).toEqual({ amounts: { wood: 5 }, owned: {} });
 });
