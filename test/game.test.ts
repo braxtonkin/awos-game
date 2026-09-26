@@ -12,6 +12,10 @@ test("mining wood adds 1 wood and leaves the dirt as it was", () => {
   });
 });
 
+test("mining iron ore in a new game gives 1 iron ore", () => {
+  expect(mine(initialState, "ironOre")).toEqual({ amounts: { ironOre: 1 }, owned: {} });
+});
+
 test("a wooden pickaxe can be bought with exactly 10 wood", () => {
   expect(canBuy({ amounts: { wood: 10 }, owned: {} }, "woodenPickaxe")).toBe(true);
 });
