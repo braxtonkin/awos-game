@@ -9,6 +9,7 @@ export type GameState = {
 };
 
 export const tickMs = 1000;
+export const maxOfflineMs = 8 * 60 * 60 * 1000;
 
 export const initialState: GameState = { amounts: {}, owned: {} };
 
@@ -50,6 +51,15 @@ export function tick(state: GameState): GameState {
     (next, upgrade) => addAmounts(next, upgrade.perTick, ownedCount(state, upgrade.id)),
     state,
   );
+}
+
+export function catchUp(state: GameState, elapsedMs: number): GameState {
+  const seconds = Math.floor(Math.min(Math.max(elapsedMs, 0), maxOfflineMs) / tickMs);
+  let next = state;
+  for (let second = 0; second < seconds; second += 1) {
+    next = tick(next);
+  }
+  return next;
 }
 
 function affords(state: GameState, cost: Amounts): boolean {
