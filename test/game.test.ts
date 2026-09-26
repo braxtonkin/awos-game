@@ -61,3 +61,9 @@ test("catch up caps elapsed time at eight hours", () => {
     owned: { woodenPickaxe: 1 },
   });
 });
+
+test("catch up applies no ticks for zero or negative elapsed time", () => {
+  const state = { amounts: { dirt: 0 }, owned: { woodenPickaxe: 1 } };
+  expect(catchUp(state, 0)).toEqual({ amounts: { dirt: 0 }, owned: { woodenPickaxe: 1 } });
+  expect(catchUp(state, -1000)).toEqual({ amounts: { dirt: 0 }, owned: { woodenPickaxe: 1 } });
+});

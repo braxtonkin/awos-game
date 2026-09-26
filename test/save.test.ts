@@ -1,4 +1,5 @@
 import { expect, test } from "vitest";
+import { catchUp } from "../src/game.ts";
 import { deserialize, serialize } from "../src/save.ts";
 
 test("serialize writes the state beside its save time", () => {
@@ -41,6 +42,29 @@ test("deserialize reads state and timestamp", () => {
   expect(deserialize('{"state":{"amounts":{"dirt":3},"owned":{}},"savedAt":1234}')).toEqual({
     state: { amounts: { dirt: 3 }, owned: {} },
     savedAt: 1234,
+  });
+});
+
+test("an old state-only save loads without catch-up ticks", () => {
+  const loaded = deserialize('{"amounts":{"dirt":0},"owned":{"woodenPickaxe":1}}');
+  expect(loaded).toEqual({
+    state: { amounts: { dirt: 0 }, owned: { woodenPickaxe: 1 } },
+    savedAt: null,
+  });
+  expect(catchUp(loaded.state, loaded.savedAt === null ? 0 : 10000)).toEqual({
+    amounts: { dirt: 0 },
+    owned: { woodenPickaxe: 1 },
+  });
+});
+
+test("a future save time loads without catch-up ticks", () => {
+  const loaded = deserialize(
+    '{"state":{"amounts":{"dirt":0},"owned":{"woodenPickaxe":1}},"savedAt":20000}',
+  );
+  const now = 10000;
+  expect(catchUp(loaded.state, loaded.savedAt === null ? 0 : now - loaded.savedAt)).toEqual({
+    amounts: { dirt: 0 },
+    owned: { woodenPickaxe: 1 },
   });
 });
 
