@@ -1,4 +1,4 @@
-import { upgradeDetails } from "./format.ts";
+import { formatAmount, upgradeDetails } from "./format.ts";
 import { amountOf, buy, canBuy, initialState, mine, ownedCount, tick, tickMs } from "./game.ts";
 import type { GameState } from "./game.ts";
 import { resources } from "./resources.ts";
@@ -31,7 +31,7 @@ const redraws = [
     });
     resourceList.append(element("li", name, amount, mineButton));
     return () => {
-      amount.textContent = String(amountOf(state, resource.id));
+      amount.textContent = formatAmount(amountOf(state, resource.id));
     };
   }),
   ...upgrades.map((upgrade) => {
