@@ -3,26 +3,36 @@ import type { GameState } from "./game.ts";
 import { resources } from "./resources.ts";
 import { upgrades } from "./upgrades.ts";
 
-export function serialize(state: GameState): string {
-  return JSON.stringify(state);
+export type LoadedSave = { readonly state: GameState; readonly savedAt: number | null };
+
+export function serialize(state: GameState, savedAt: number): string {
+  return JSON.stringify({ state, savedAt });
 }
 
-export function deserialize(text: string | null): GameState {
+export function deserialize(text: string | null): LoadedSave {
   if (text === null) {
-    return initialState;
+    return { state: initialState, savedAt: null };
   }
   let saved: unknown;
   try {
     saved = JSON.parse(text);
   } catch {
-    return initialState;
+    return { state: initialState, savedAt: null };
   }
   if (!isRecord(saved)) {
-    return initialState;
+    return { state: initialState, savedAt: null };
   }
+  const hasEnvelope = isRecord(saved.state);
+  const state = hasEnvelope ? saved.state as Record<string, unknown> : saved;
+  const savedAt = hasEnvelope && typeof saved.savedAt === "number" && Number.isFinite(saved.savedAt)
+    ? saved.savedAt
+    : null;
   return {
-    amounts: keepCounts(saved.amounts, resources.map((resource) => resource.id)),
-    owned: keepCounts(saved.owned, upgrades.map((upgrade) => upgrade.id)),
+    state: {
+      amounts: keepCounts(state.amounts, resources.map((resource) => resource.id)),
+      owned: keepCounts(state.owned, upgrades.map((upgrade) => upgrade.id)),
+    },
+    savedAt,
   };
 }
 

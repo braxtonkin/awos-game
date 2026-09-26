@@ -1,5 +1,5 @@
 import { upgradeDetails } from "./format.ts";
-import { amountOf, buy, canBuy, mine, ownedCount, tick, tickMs } from "./game.ts";
+import { amountOf, buy, canBuy, catchUp, mine, ownedCount, tick, tickMs } from "./game.ts";
 import type { GameState } from "./game.ts";
 import { resources } from "./resources.ts";
 import { deserialize, serialize } from "./save.ts";
@@ -7,7 +7,8 @@ import { upgrades } from "./upgrades.ts";
 
 const saveKey = "awos-game:save";
 
-let state = deserialize(localStorage.getItem(saveKey));
+const loadedSave = deserialize(localStorage.getItem(saveKey));
+let state = catchUp(loadedSave.state, loadedSave.savedAt === null ? 0 : Date.now() - loadedSave.savedAt);
 
 const resourceList = byId("resources");
 const upgradeList = byId("upgrades");
@@ -60,7 +61,7 @@ function update(next: GameState): void {
   for (const redraw of redraws) {
     redraw();
   }
-  localStorage.setItem(saveKey, serialize(state));
+  localStorage.setItem(saveKey, serialize(state, Date.now()));
 }
 
 function byId(id: string): HTMLElement {

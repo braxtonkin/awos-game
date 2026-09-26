@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { buy, canBuy, initialState, mine, tick } from "../src/game.ts";
+import { buy, canBuy, catchUp, initialState, mine, tick } from "../src/game.ts";
 
 test("mining dirt in a new game gives 1 dirt", () => {
   expect(mine(initialState, "dirt")).toEqual({ amounts: { dirt: 1 }, owned: {} });
@@ -41,5 +41,23 @@ test("a tick adds 1 dirt for each wooden pickaxe owned", () => {
   expect(tick({ amounts: { dirt: 2 }, owned: { woodenPickaxe: 3 } })).toEqual({
     amounts: { dirt: 5 },
     owned: { woodenPickaxe: 3 },
+  });
+});
+
+test("catch up applies one tick per whole elapsed second", () => {
+  expect(catchUp({ amounts: { dirt: 0 }, owned: { woodenPickaxe: 1 } }, 10000)).toEqual({
+    amounts: { dirt: 10 },
+    owned: { woodenPickaxe: 1 },
+  });
+  expect(catchUp({ amounts: { dirt: 0 }, owned: { woodenPickaxe: 1 } }, 9500)).toEqual({
+    amounts: { dirt: 9 },
+    owned: { woodenPickaxe: 1 },
+  });
+});
+
+test("catch up caps elapsed time at eight hours", () => {
+  expect(catchUp({ amounts: { dirt: 0 }, owned: { woodenPickaxe: 1 } }, 2 * 24 * 60 * 60 * 1000)).toEqual({
+    amounts: { dirt: 28800 },
+    owned: { woodenPickaxe: 1 },
   });
 });

@@ -52,6 +52,15 @@ export function tick(state: GameState): GameState {
   );
 }
 
+export function catchUp(state: GameState, elapsedMs: number): GameState {
+  const seconds = Math.floor(Math.min(8 * 60 * 60 * 1000, Math.max(0, elapsedMs)) / tickMs);
+  let next = state;
+  for (let second = 0; second < seconds; second += 1) {
+    next = tick(next);
+  }
+  return next;
+}
+
 function affords(state: GameState, cost: Amounts): boolean {
   return resources.every((resource) => {
     const needed = cost[resource.id];
