@@ -11,6 +11,13 @@ test("deserialize starts a new game when there is no save", () => {
   expect(deserialize(null)).toEqual({ amounts: {}, owned: {} });
 });
 
+test("deserialize loads a pre-coal save with no coal amount", () => {
+  expect(deserialize('{"amounts":{"dirt":3,"wood":2},"owned":{}}')).toEqual({
+    amounts: { dirt: 3, wood: 2 },
+    owned: {},
+  });
+});
+
 test("deserialize starts a new game when the save is not JSON", () => {
   expect(deserialize("not json")).toEqual({ amounts: {}, owned: {} });
 });
