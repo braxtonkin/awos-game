@@ -25,11 +25,11 @@ const redraws = [
     name.className = "name";
     const amount = element("span");
     amount.className = "amount";
-    const mineButton = element("button", "Mine");
-    mineButton.addEventListener("click", () => {
+    const mineButton = resource.perClick > 0 ? element("button", "Mine") : undefined;
+    mineButton?.addEventListener("click", () => {
       update(mine(state, resource.id));
     });
-    resourceList.append(element("li", name, amount, mineButton));
+    resourceList.append(element("li", name, amount, ...(mineButton === undefined ? [] : [mineButton])));
     return () => {
       amount.textContent = String(amountOf(state, resource.id));
     };
