@@ -1,5 +1,5 @@
 import { upgradeDetails } from "./format.ts";
-import { amountOf, buy, canBuy, mine, ownedCount, tick, tickMs } from "./game.ts";
+import { amountOf, buy, canBuy, initialState, mine, ownedCount, tick, tickMs } from "./game.ts";
 import type { GameState } from "./game.ts";
 import { resources } from "./resources.ts";
 import { deserialize, serialize } from "./save.ts";
@@ -11,6 +11,13 @@ let state = deserialize(localStorage.getItem(saveKey));
 
 const resourceList = byId("resources");
 const upgradeList = byId("upgrades");
+const resetButton = element("button", "Reset");
+resetButton.addEventListener("click", () => {
+  if (window.confirm("Start a new game? Your progress will be lost.")) {
+    update(initialState);
+  }
+});
+upgradeList.parentElement?.append(resetButton);
 
 const redraws = [
   ...resources.map((resource) => {
