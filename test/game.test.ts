@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { buy, canBuy, initialState, mine, tick } from "../src/game.ts";
+import { buy, canBuy, catchUp, initialState, mine, tick } from "../src/game.ts";
 
 test("mining dirt in a new game gives 1 dirt", () => {
   expect(mine(initialState, "dirt")).toEqual({ amounts: { dirt: 1 }, owned: {} });
@@ -14,6 +14,14 @@ test("mining wood adds 1 wood and leaves the dirt as it was", () => {
 
 test("mining iron ore in a new game gives 1 iron ore", () => {
   expect(mine(initialState, "ironOre")).toEqual({ amounts: { ironOre: 1 }, owned: {} });
+});
+
+test("mining coal in a new game gives 1 coal", () => {
+  expect(mine(initialState, "coal")).toEqual({ amounts: { coal: 1 }, owned: {} });
+});
+
+test("mining stone in a new game gives 1 stone", () => {
+  expect(mine(initialState, "stone")).toEqual({ amounts: { stone: 1 }, owned: {} });
 });
 
 test("a wooden pickaxe can be bought with exactly 10 wood", () => {
@@ -80,5 +88,26 @@ test("one furnace with 1 wood changes nothing", () => {
   expect(tick({ amounts: { wood: 1 }, owned: { furnace: 1 } })).toEqual({
     amounts: { wood: 1 },
     owned: { furnace: 1 },
+  });
+});
+
+test("catch-up applies 10 whole seconds of ticks", () => {
+  expect(catchUp({ amounts: {}, owned: { woodenPickaxe: 1 } }, 10_000)).toEqual({
+    amounts: { dirt: 10 },
+    owned: { woodenPickaxe: 1 },
+  });
+});
+
+test("catch-up floors elapsed milliseconds to whole seconds", () => {
+  expect(catchUp({ amounts: {}, owned: { woodenPickaxe: 1 } }, 9_500)).toEqual({
+    amounts: { dirt: 9 },
+    owned: { woodenPickaxe: 1 },
+  });
+});
+
+test("catch-up caps elapsed time at eight hours", () => {
+  expect(catchUp({ amounts: {}, owned: { woodenPickaxe: 1 } }, 2 * 24 * 60 * 60 * 1000)).toEqual({
+    amounts: { dirt: 28_800 },
+    owned: { woodenPickaxe: 1 },
   });
 });
