@@ -50,6 +50,13 @@ test("deserialize gives iron ore zero when loading a save from before it existed
   });
 });
 
+test("deserialize gives stone zero when loading a save from before it existed", () => {
+  expect(deserialize('{"amounts":{"dirt":4,"wood":2},"owned":{}}')).toEqual({
+    amounts: { dirt: 4, wood: 2 },
+    owned: {},
+  });
+});
+
 test("deserialize drops negative values", () => {
   expect(deserialize('{"amounts":{"dirt":-4,"wood":2},"owned":{"woodenPickaxe":-1}}')).toEqual({
     amounts: { wood: 2 },
