@@ -43,3 +43,24 @@ test("a tick adds 1 dirt for each wooden pickaxe owned", () => {
     owned: { woodenPickaxe: 3 },
   });
 });
+
+test("one furnace burns 2 wood when 5 wood are available", () => {
+  expect(tick({ amounts: { wood: 5 }, owned: { furnace: 1 } })).toEqual({
+    amounts: { wood: 3, charcoal: 1 },
+    owned: { furnace: 1 },
+  });
+});
+
+test("two furnaces burn available wood sequentially", () => {
+  expect(tick({ amounts: { wood: 3 }, owned: { furnace: 2 } })).toEqual({
+    amounts: { wood: 1, charcoal: 1 },
+    owned: { furnace: 2 },
+  });
+});
+
+test("a furnace does not burn fewer than 2 wood", () => {
+  expect(tick({ amounts: { wood: 1 }, owned: { furnace: 1 } })).toEqual({
+    amounts: { wood: 1 },
+    owned: { furnace: 1 },
+  });
+});

@@ -18,11 +18,15 @@ const redraws = [
     name.className = "name";
     const amount = element("span");
     amount.className = "amount";
-    const mineButton = element("button", "Mine");
-    mineButton.addEventListener("click", () => {
-      update(mine(state, resource.id));
-    });
-    resourceList.append(element("li", name, amount, mineButton));
+    const children: (Node | string)[] = [name, amount];
+    if (resource.perClick > 0) {
+      const mineButton = element("button", "Mine");
+      mineButton.addEventListener("click", () => {
+        update(mine(state, resource.id));
+      });
+      children.push(mineButton);
+    }
+    resourceList.append(element("li", ...children));
     return () => {
       amount.textContent = String(amountOf(state, resource.id));
     };

@@ -46,10 +46,28 @@ export function buy(state: GameState, upgradeId: UpgradeId): GameState {
 }
 
 export function tick(state: GameState): GameState {
-  return upgrades.reduce(
-    (next, upgrade) => addAmounts(next, upgrade.perTick, ownedCount(state, upgrade.id)),
+  const produced = upgrades.reduce(
+    (next, upgrade) =>
+      Object.keys(upgrade.uses).length === 0
+        ? addAmounts(next, upgrade.perTick, ownedCount(state, upgrade.id))
+        : next,
     state,
   );
+  return upgrades.reduce((next, upgrade) => {
+    let consumed = next;
+    const uses: Amounts = upgrade.uses;
+    for (const resource of resources) {
+      const perUpgrade = uses[resource.id] ?? 0;
+      for (let count = 0; count < ownedCount(state, upgrade.id); count += 1) {
+        if (perUpgrade === 0 || amountOf(consumed, resource.id) < perUpgrade) {
+          break;
+        }
+        consumed = addAmounts(consumed, uses, -1);
+        consumed = addAmounts(consumed, upgrade.perTick, 1);
+      }
+    }
+    return consumed;
+  }, produced);
 }
 
 function affords(state: GameState, cost: Amounts): boolean {
