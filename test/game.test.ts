@@ -16,6 +16,10 @@ test("mining iron ore in a new game gives 1 iron ore", () => {
   expect(mine(initialState, "ironOre")).toEqual({ amounts: { ironOre: 1 }, owned: {} });
 });
 
+test("mining coal in a new game gives 1 coal", () => {
+  expect(mine(initialState, "coal")).toEqual({ amounts: { coal: 1 }, owned: {} });
+});
+
 test("mining stone in a new game gives 1 stone", () => {
   expect(mine(initialState, "stone")).toEqual({ amounts: { stone: 1 }, owned: {} });
 });
