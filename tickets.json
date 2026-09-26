@@ -1,0 +1,98 @@
+[
+  {
+    "summary": "Add Stone as a resource",
+    "description": "Players can mine only Dirt and Wood. Add Stone as a third resource that the player mines by clicking. One click gives 1 Stone. Append Stone, with the id `stone`, to the end of the `resources` array in `src/resources.ts`.",
+    "acceptance": [
+      "The page lists Stone below Dirt and Wood, with a Mine button.",
+      "From a new game, one click on the Mine button for Stone shows 1 Stone and leaves every other amount at 0.",
+      "A save written before this change still loads and shows 0 Stone.",
+      "`test/game.test.ts` has a test that calls `mine(initialState, \"stone\")` and asserts the exact resulting state.",
+      "`npm run typecheck`, `npm test`, and `npm run build` pass."
+    ]
+  },
+  {
+    "summary": "Add Coal as a resource",
+    "description": "Add Coal as a resource that the player mines by clicking. One click gives 1 Coal. Append Coal, with the id `coal`, to the end of the `resources` array in `src/resources.ts`.",
+    "acceptance": [
+      "The page lists Coal below Dirt and Wood, with a Mine button.",
+      "From a new game, one click on the Mine button for Coal shows 1 Coal and leaves every other amount at 0.",
+      "A save written before this change still loads and shows 0 Coal.",
+      "`test/game.test.ts` has a test that calls `mine(initialState, \"coal\")` and asserts the exact resulting state.",
+      "`npm run typecheck`, `npm test`, and `npm run build` pass."
+    ]
+  },
+  {
+    "summary": "Add Iron ore as a resource",
+    "description": "Add Iron ore as a resource that the player mines by clicking. One click gives 1 Iron ore. Append Iron ore, with the id `ironOre`, to the end of the `resources` array in `src/resources.ts`.",
+    "acceptance": [
+      "The page lists Iron ore below Dirt and Wood, with a Mine button.",
+      "From a new game, one click on the Mine button for Iron ore shows 1 Iron ore and leaves every other amount at 0.",
+      "A save written before this change still loads and shows 0 Iron ore.",
+      "`test/game.test.ts` has a test that calls `mine(initialState, \"ironOre\")` and asserts the exact resulting state.",
+      "`npm run typecheck`, `npm test`, and `npm run build` pass."
+    ]
+  },
+  {
+    "summary": "Add a Wooden axe that makes Wood every second",
+    "description": "Nothing makes Wood on its own yet. Add a Wooden axe upgrade. It costs 15 Wood and makes 1 Wood per second for each axe the player owns. Append it, with the id `woodenAxe`, to the end of the `upgrades` array in `src/upgrades.ts`.",
+    "acceptance": [
+      "The page lists a Wooden axe below the Wooden pickaxe, showing `Cost: 15 Wood` and `Makes: 1 Wood per second`.",
+      "With 15 Wood, buying a Wooden axe leaves 0 Wood and 1 Wooden axe owned.",
+      "With 14 Wood, the Buy button for the Wooden axe is disabled.",
+      "With 2 Wooden axes owned, one tick adds 2 Wood.",
+      "`test/game.test.ts` has a test for buying a Wooden axe and a test for a tick with 2 of them, each asserting the exact resulting state.",
+      "`npm run typecheck`, `npm test`, and `npm run build` pass."
+    ]
+  },
+  {
+    "summary": "Add a Furnace that burns Wood into Charcoal",
+    "description": "Add Charcoal, a resource that the player cannot mine by hand, and a Furnace upgrade that makes it. A Furnace costs 20 Dirt and 10 Wood. On each tick, every upgrade that uses no resource produces first. Then each Furnace burns 2 Wood into 1 Charcoal, but only when 2 Wood are left for it. The Furnace is the first upgrade that uses up a resource, so `tick` in `src/game.ts` needs a new rule, and `upgradeDetails` in `src/format.ts` needs a `Uses:` line. Append Charcoal, with the id `charcoal`, to the end of `resources`, and the Furnace, with the id `furnace`, to the end of `upgrades`.",
+    "acceptance": [
+      "The page lists Charcoal below Dirt and Wood, with no Mine button.",
+      "The page lists a Furnace below the Wooden pickaxe, showing `Cost: 20 Dirt, 10 Wood`, `Uses: 2 Wood per second`, and `Makes: 1 Charcoal per second`.",
+      "With 1 Furnace and 5 Wood, one tick leaves 3 Wood and 1 Charcoal.",
+      "With 2 Furnaces and 3 Wood, one tick leaves 1 Wood and 1 Charcoal.",
+      "With 1 Furnace and 1 Wood, one tick changes nothing.",
+      "`test/game.test.ts` covers each of the three ticks above, and `test/format.test.ts` covers the Furnace's lines, each asserting the exact result.",
+      "`npm run typecheck`, `npm test`, and `npm run build` pass."
+    ]
+  },
+  {
+    "summary": "Show large amounts in short form, like 1.2K",
+    "description": "Amounts are hard to read once they reach the thousands. Show resource amounts and upgrade costs in short form, with one decimal place and a K, M, or B suffix, and drop a trailing `.0`. Round down, so the page never shows more than the player has. Write the formatter as a pure function in `src/format.ts`, test it in `test/format.test.ts`, and use it for every resource amount and upgrade cost on the page.",
+    "acceptance": [
+      "`0` shows as `0`, and `999` shows as `999`.",
+      "`1000` shows as `1K`, `1234` shows as `1.2K`, and `999999` shows as `999.9K`.",
+      "`1500000` shows as `1.5M`, and `2000000000` shows as `2B`.",
+      "With 1234 Dirt saved, the Dirt row on the page shows `1.2K`.",
+      "An upgrade that costs 1500 Wood shows `Cost: 1.5K Wood`.",
+      "`test/format.test.ts` asserts the exact string for every value above.",
+      "`npm run typecheck`, `npm test`, and `npm run build` pass."
+    ]
+  },
+  {
+    "summary": "Add a Reset button that starts a new game",
+    "description": "Players have no way to start over. Add a Reset button below the upgrade list. The button asks for confirmation first. After the player confirms, the game returns to `initialState` and overwrites the save, so a reload also shows the new game.",
+    "acceptance": [
+      "The page shows a Reset button below the upgrade list.",
+      "Clicking Reset opens a confirmation dialog that reads `Start a new game? Your progress will be lost.`",
+      "Confirming sets every resource amount and every owned count on the page to 0.",
+      "With no upgrades owned, cancelling leaves every resource amount and every owned count unchanged.",
+      "After a confirmed reset, reloading the page still shows 0 for every resource amount and every owned count.",
+      "`npm run typecheck`, `npm test`, and `npm run build` pass."
+    ]
+  },
+  {
+    "summary": "Earn resources while the page is closed",
+    "description": "Upgrades stop working when the player closes the tab. When the game loads a save, apply one tick for each whole second since the game wrote the save, up to 8 hours. Write the save time into the saved text beside the state, and keep `GameState` unchanged. Add the catch-up rule to `src/game.ts` as a pure function that takes a state and the elapsed milliseconds and calls `tick` once for each missed second, so every upgrade rule applies. Read the clock only in `src/main.ts`.",
+    "acceptance": [
+      "A save written 10 seconds ago with 1 Wooden pickaxe and 0 Dirt loads with 10 Dirt.",
+      "A save written 9.5 seconds ago with 1 Wooden pickaxe and 0 Dirt loads with 9 Dirt.",
+      "A save written 2 days ago with 1 Wooden pickaxe and 0 Dirt loads with 28800 Dirt, which is 8 hours of ticks.",
+      "A save written before this change has no save time, and it loads with no ticks applied.",
+      "A save whose time is in the future loads with no ticks applied.",
+      "Tests cover each case above and assert the exact resulting state.",
+      "`npm run typecheck`, `npm test`, and `npm run build` pass."
+    ]
+  }
+]

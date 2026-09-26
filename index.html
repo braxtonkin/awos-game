@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Block Idle</title>
+    <style>
+      :root {
+        --page: #f1ece4;
+        --card: #fbf8f3;
+        --line: #ddd3c6;
+        --muted: #71665a;
+        --ink: #2f261d;
+        --dirt: #7b5034;
+        --dirt-hover: #5f3b25;
+        --wood: #a97843;
+        --stone: #ddd6cc;
+      }
+      body {
+        margin: 0;
+        background: var(--page);
+        color: var(--ink);
+        font-family: system-ui, sans-serif;
+      }
+      main {
+        max-width: 36rem;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      h2 {
+        font-size: 1rem;
+        color: var(--muted);
+      }
+      ul {
+        display: grid;
+        gap: 0.5rem;
+        padding: 0;
+        list-style: none;
+      }
+      li {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 0.5rem;
+      }
+      li > :first-child {
+        flex: 1;
+      }
+      .name {
+        font-weight: 600;
+      }
+      .amount {
+        font-variant-numeric: tabular-nums;
+      }
+      .details {
+        display: flex;
+        flex-direction: column;
+      }
+      .details .name ~ span {
+        font-size: 0.875rem;
+        color: var(--muted);
+      }
+      button {
+        min-width: 5.5rem;
+        min-height: 2.75rem;
+        padding: 0 1rem;
+        border: 0;
+        border-radius: 0.375rem;
+        background: var(--dirt);
+        color: var(--card);
+        font: inherit;
+      }
+      button:hover {
+        background: var(--dirt-hover);
+      }
+      button:focus-visible {
+        outline: 3px solid var(--wood);
+        outline-offset: 2px;
+      }
+      button:disabled {
+        background: var(--stone);
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Block Idle</h1>
+      <section>
+        <h2>Resources</h2>
+        <ul id="resources"></ul>
+      </section>
+      <section>
+        <h2>Upgrades</h2>
+        <ul id="upgrades"></ul>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
