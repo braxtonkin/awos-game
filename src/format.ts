@@ -12,5 +12,9 @@ export function formatAmounts(amounts: Amounts): string {
 }
 
 export function upgradeDetails(upgrade: Upgrade): string[] {
-  return [`Cost: ${formatAmounts(upgrade.cost)}`, `Makes: ${formatAmounts(upgrade.perTick)} per second`];
+  return [
+    `Cost: ${formatAmounts(upgrade.cost)}`,
+    ...(upgrade.uses === undefined ? [] : [`Uses: ${formatAmounts(upgrade.uses)} per second`]),
+    `Makes: ${formatAmounts(upgrade.perTick)} per second`,
+  ];
 }

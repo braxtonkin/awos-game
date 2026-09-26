@@ -1,7 +1,7 @@
 import { resources } from "./resources.ts";
 import type { Amounts, ResourceId } from "./resources.ts";
 import { upgrades } from "./upgrades.ts";
-import type { UpgradeId } from "./upgrades.ts";
+import type { Upgrade, UpgradeId } from "./upgrades.ts";
 
 export type GameState = {
   readonly amounts: Amounts;
@@ -47,10 +47,26 @@ export function buy(state: GameState, upgradeId: UpgradeId): GameState {
 }
 
 export function tick(state: GameState): GameState {
-  return upgrades.reduce(
+  const producing = upgrades.filter((upgrade: Upgrade) => upgrade.uses === undefined);
+  const consuming = upgrades.filter((upgrade: Upgrade) => upgrade.uses !== undefined);
+  const produced = producing.reduce(
     (next, upgrade) => addAmounts(next, upgrade.perTick, ownedCount(state, upgrade.id)),
     state,
   );
+  return consuming.reduce((next, upgrade) => {
+    let result = next;
+    const uses: Amounts = upgrade.uses ?? {};
+    for (let count = 0; count < ownedCount(state, upgrade.id); count += 1) {
+      const canUse = resources.every((resource) => {
+        const needed = uses[resource.id];
+        return needed === undefined || amountOf(result, resource.id) >= needed;
+      });
+      if (canUse) {
+        result = addAmounts(addAmounts(result, uses, -1), upgrade.perTick, 1);
+      }
+    }
+    return result;
+  }, produced);
 }
 
 export function catchUp(state: GameState, elapsedMs: number): GameState {

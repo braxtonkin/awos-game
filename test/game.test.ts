@@ -70,6 +70,27 @@ test("a tick adds 1 dirt for each wooden pickaxe owned", () => {
   });
 });
 
+test("one furnace with 5 wood makes 1 charcoal and uses 2 wood", () => {
+  expect(tick({ amounts: { wood: 5 }, owned: { furnace: 1 } })).toEqual({
+    amounts: { wood: 3, charcoal: 1 },
+    owned: { furnace: 1 },
+  });
+});
+
+test("two furnaces with 3 wood only let one furnace run", () => {
+  expect(tick({ amounts: { wood: 3 }, owned: { furnace: 2 } })).toEqual({
+    amounts: { wood: 1, charcoal: 1 },
+    owned: { furnace: 2 },
+  });
+});
+
+test("one furnace with 1 wood changes nothing", () => {
+  expect(tick({ amounts: { wood: 1 }, owned: { furnace: 1 } })).toEqual({
+    amounts: { wood: 1 },
+    owned: { furnace: 1 },
+  });
+});
+
 test("catch-up applies 10 whole seconds of ticks", () => {
   expect(catchUp({ amounts: {}, owned: { woodenPickaxe: 1 } }, 10_000)).toEqual({
     amounts: { dirt: 10 },
