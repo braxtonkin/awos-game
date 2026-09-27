@@ -8,6 +8,26 @@ test("new game displays zero wood and one Mine button", () => {
   expect(document.querySelector('[data-resource="wood"] button')?.textContent).toBe("Mine");
 });
 
+test("new game locks iron ore and shows Caves as unavailable", () => {
+  openPage();
+  const ironButton = document.querySelector<HTMLButtonElement>('[data-resource="ironOre"] button');
+  const cavesButton = document.querySelector<HTMLButtonElement>('[data-zone="caves"] button');
+  expect(ironButton?.textContent).toBe("Locked");
+  expect(ironButton?.disabled).toBe(true);
+  expect(cavesButton?.textContent).toBe("Explore");
+  expect(cavesButton?.disabled).toBe(true);
+});
+
+test("exploring Caves unlocks iron ore and keeps saved iron ore visible", () => {
+  openPage(JSON.stringify({ amounts: { torch: 400, stone: 1500, ironOre: 5 }, owned: { stonePickaxe: 1 } }));
+  document.querySelector<HTMLButtonElement>('[data-zone="caves"] button')?.click();
+  expect(document.querySelector('[data-zone="caves"] button')?.textContent).toBe("Reached");
+  expect(document.querySelector('[data-resource="ironOre"] button')?.textContent).toBe("Mine");
+  expect(document.querySelector('[data-resource="ironOre"] .amount')?.textContent).toBe("5");
+  document.querySelector<HTMLButtonElement>('[data-resource="ironOre"] button')?.click();
+  expect(document.querySelector('[data-resource="ironOre"] .amount')?.textContent).toBe("7");
+});
+
 test("mining wood updates the page and persisted save", () => {
   const { storage } = openPage();
   document.querySelector<HTMLButtonElement>('[data-resource="wood"] button')?.click();
@@ -40,7 +60,7 @@ test("one page tick produces wood from two wooden axes", () => {
 test("sections appear in page order", () => {
   openPage();
   expect([...document.querySelectorAll("main h2")].map((heading) => heading.textContent)).toEqual([
-    "Resources", "Tools", "Zones", "Upgrades", "Game",
+    "Resources", "Tools", "Zones", "Upgrades", "Save", "Game",
   ]);
 });
 
