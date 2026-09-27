@@ -65,7 +65,8 @@
   "lifetime": {
     "clicks": 0,
     "ticks": 0,
-    "gathered": 0
+    "gathered": 0,
+    "records": {}
   },
   "event": null,
   "achievements": [
