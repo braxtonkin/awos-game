@@ -93,6 +93,11 @@ function parseState(value: SaveRecord): GameState {
       ticks: keepCounts(value.stats, ["ticks"] as const).ticks ?? initialState.stats.ticks,
       gathered: { ...initialState.stats.gathered, ...keepCounts(isRecord(value.stats) ? value.stats.gathered : undefined, resources.map((resource) => resource.id)) },
     },
+    lifetime: {
+      clicks: keepCounts(value.lifetime, ["clicks"] as const).clicks ?? 0,
+      ticks: keepCounts(value.lifetime, ["ticks"] as const).ticks ?? 0,
+      gathered: keepCounts(value.lifetime, ["gathered"] as const).gathered ?? 0,
+    },
     event,
     achievements: keepAchievementIds(value.achievements),
     prestige: { emeralds: keepCounts(value.prestige, ["emeralds"] as const).emeralds ?? 0, worlds: keepCounts(value.prestige, ["worlds"] as const).worlds ?? 0 },

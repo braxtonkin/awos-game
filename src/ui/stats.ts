@@ -11,6 +11,8 @@ export const statsSection: Section = {
     root.append(list);
     return () => {
       const current = state().stats;
+      const lifetime = state().lifetime;
+      const gathered = resources.reduce((sum, resource) => sum + (current.gathered[resource.id] ?? 0), 0);
       list.replaceChildren();
       const lines = [
         `Time in this world: ${formatDuration(current.ticks)}`,
@@ -20,6 +22,11 @@ export const statsSection: Section = {
           const amount = current.gathered[resource.id] ?? 0;
           return amount > 0 ? [`${resource.name} gathered: ${formatAmount(amount, settings().numbers)}`] : [];
         }),
+        "All worlds",
+        `Worlds started: ${state().prestige.worlds}`,
+        `Time in all worlds: ${formatDuration(lifetime.ticks + current.ticks)}`,
+        `Clicks in all worlds: ${lifetime.clicks + current.clicks}`,
+        `Gathered in all worlds: ${formatAmount(lifetime.gathered + gathered, settings().numbers)}`,
       ];
       for (const line of lines) {
         const item = root.ownerDocument.createElement("li");
