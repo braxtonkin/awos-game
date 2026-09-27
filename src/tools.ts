@@ -5,6 +5,7 @@ export type Tool = { readonly id: string; readonly name: string; readonly cost: 
 export const tools = [
   { id: "stonePickaxe", name: "Stone pickaxe", cost: { stone: 60, wood: 40 }, clickPower: 2 },
   { id: "ironPickaxe", name: "Iron pickaxe", cost: { ironIngot: 300, wood: 1000 }, clickPower: 3 },
+  { id: "diamondPickaxe", name: "Diamond pickaxe", cost: { diamond: 1000, ironIngot: 2500 }, clickPower: 5 },
 ] as const satisfies readonly Tool[];
 
 export type ToolId = (typeof tools)[number]["id"];
