@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { buy, canBuy, catchUp, mine, tick } from "../src/game.ts";
+import { buy, canBuy, catchUp, costOf, mine, tick } from "../src/game.ts";
 import { stateWith } from "./state.ts";
 
 test("mining dirt in a new game gives 1 dirt", () => {
@@ -30,10 +30,26 @@ test("a wooden pickaxe cannot be bought with 9 wood, however much dirt there is"
   expect(canBuy(stateWith({ amounts: { dirt: 50, wood: 9 } }), "woodenPickaxe")).toBe(false);
 });
 
-test("buying another wooden pickaxe spends 10 wood and adds one to the owned count", () => {
+test("buying another wooden pickaxe spends 12 wood and adds one to the owned count", () => {
   const result = buy(stateWith({ amounts: { dirt: 3, wood: 12 }, owned: { woodenPickaxe: 1 } }), "woodenPickaxe");
-  expect(result.amounts).toEqual({ dirt: 3, wood: 2 });
+  expect(result.amounts).toEqual({ dirt: 3, wood: 0 });
   expect(result.owned).toEqual({ woodenPickaxe: 2 });
+});
+
+test("upgrade costs rise with the owned count", () => {
+  expect(costOf(stateWith({ owned: { woodenAxe: 0 } }), "woodenAxe")).toEqual({ wood: 15 });
+  expect(costOf(stateWith({ owned: { woodenAxe: 1 } }), "woodenAxe")).toEqual({ wood: 18 });
+  expect(costOf(stateWith({ owned: { woodenAxe: 2 } }), "woodenAxe")).toEqual({ wood: 20 });
+  expect(costOf(stateWith({ owned: { woodenAxe: 3 } }), "woodenAxe")).toEqual({ wood: 23 });
+  expect(costOf(stateWith({ owned: { woodenAxe: 10 } }), "woodenAxe")).toEqual({ wood: 61 });
+  expect(costOf(stateWith({ owned: { furnace: 3 } }), "furnace")).toEqual({ dirt: 31, wood: 16 });
+  expect(costOf(stateWith({}), "stonePickaxe")).toEqual({ stone: 60, wood: 40 });
+});
+
+test("buying a second wooden axe charges its increased price", () => {
+  const result = buy(stateWith({ amounts: { wood: 30 }, owned: { woodenAxe: 1 } }), "woodenAxe");
+  expect(result.amounts).toEqual({ wood: 12 });
+  expect(result.owned).toEqual({ woodenAxe: 2 });
 });
 
 test("buying a wooden pickaxe without enough wood changes nothing", () => {
