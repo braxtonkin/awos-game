@@ -1,11 +1,11 @@
 import { expect, test } from "vitest";
 import { achievements } from "../src/achievements.ts";
-import { earnAchievements, mine, tick } from "../src/game.ts";
+import { earnAchievements, initialState, mine, tick } from "../src/game.ts";
 import { loadSave } from "../src/save.ts";
 import { stateWith } from "./state.ts";
 
 test("achievement catalog has the required order", () => {
-  expect(achievements.map(({ id }) => id)).toEqual(["firstLog", "lumberjack", "stoneTools", "intoTheDark", "ironWorks", "ironTools", "torchbearer", "busyHands", "factory", "stockpile", "deeper", "shiny", "diamondTools", "goldRush", "clickStorm", "machinist", "smeltery", "torchlight", "obsidianWall", "millionaire"]);
+  expect(achievements.map(({ id }) => id)).toEqual(["firstLog", "lumberjack", "stoneTools", "intoTheDark", "ironWorks", "ironTools", "torchbearer", "busyHands", "factory", "stockpile", "deeper", "shiny", "diamondTools", "goldRush", "clickStorm", "machinist", "smeltery", "torchlight", "obsidianWall", "millionaire", "tooHot", "netheriteTools", "blazing", "pearlDiver", "ancientHistory", "freshStart", "worldHopper", "emeraldHoard", "lavaLord", "tenMillion"]);
 });
 
 test("mining wood earns firstLog only once", () => {
@@ -28,6 +28,14 @@ test("gathering a Diamond earns shiny", () => {
 
 test("owning 10 Smelters earns smeltery", () => {
   expect(earnAchievements(stateWith({ owned: { smelter: 10 } })).achievements).toEqual(["smeltery"]);
+});
+
+test("prestige thresholds earn freshStart and emeraldHoard", () => {
+  expect(earnAchievements(stateWith({ prestige: { ...initialState.prestige, emeralds: 25, worlds: 1 } })).achievements).toEqual(["freshStart", "emeraldHoard"]);
+});
+
+test("owning the Nether earns tooHot", () => {
+  expect(earnAchievements(stateWith({ owned: { nether: 1 } })).achievements).toEqual(["tooHot"]);
 });
 
 test("three achievements add three percent to machine production", () => {
