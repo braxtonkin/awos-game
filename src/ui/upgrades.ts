@@ -9,7 +9,7 @@ type Mode = 1 | 10 | "max";
 export const upgradesSection: Section = {
   id: "upgrades",
   title: "Upgrades",
-  build({ root, state, update }) {
+  build({ root, state, update, settings }) {
     const document = root.ownerDocument;
     let mode: Mode = 1;
     const controls = document.createElement("div");
@@ -34,7 +34,7 @@ export const upgradesSection: Section = {
       name.className = "name";
       name.textContent = upgrade.name;
       const owned = document.createElement("span");
-      const detailLines = upgradeDetails(upgrade, {}).map(() => document.createElement("span"));
+      const detailLines = upgradeDetails(upgrade, {}, settings().numbers).map(() => document.createElement("span"));
       details.append(name, ...detailLines, owned);
       const button = document.createElement("button");
       button.addEventListener("click", () => update(buyMany(state(), upgrade.id, batch(upgrade.id))));
@@ -48,7 +48,7 @@ export const upgradesSection: Section = {
       return () => {
         const count = batch(upgrade.id);
         row.hidden = !(Object.keys(upgrade.cost) as ResourceId[]).every((id) => isDiscovered(state(), id));
-        upgradeDetails(upgrade, costOfMany(state(), upgrade.id, count)).forEach((line, index) => {
+        upgradeDetails(upgrade, costOfMany(state(), upgrade.id, count), settings().numbers).forEach((line, index) => {
           const detail = detailLines[index];
           if (detail !== undefined) detail.textContent = line;
         });

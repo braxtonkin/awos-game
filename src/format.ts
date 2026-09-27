@@ -6,7 +6,16 @@ import { tools } from "./tools.ts";
 import type { Recipe } from "./recipes.ts";
 import type { Tool } from "./tools.ts";
 
-export function formatAmount(amount: number): string {
+export type NumberFormat = "short" | "full" | "scientific";
+
+export function formatAmount(amount: number, numbers: NumberFormat = "short"): string {
+  if (numbers === "full") return Math.floor(amount).toLocaleString("en-US");
+  if (numbers === "scientific") {
+    if (amount < 1_000) return String(Math.floor(amount));
+    const exponent = Math.floor(Math.log10(amount));
+    const mantissa = Math.floor((amount / 10 ** exponent) * 100) / 100;
+    return `${mantissa}e${exponent}`;
+  }
   if (amount < 1_000) return String(Math.floor(amount));
 
   const suffixes = ["K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc"];
@@ -34,36 +43,36 @@ export function formatDuration(seconds: number): string {
   return `${Math.floor(seconds / 3600)}h ${String(Math.floor(seconds % 3600 / 60)).padStart(2, "0")}m`;
 }
 
-export function formatAmounts(amounts: Amounts): string {
+export function formatAmounts(amounts: Amounts, numbers: NumberFormat = "short"): string {
   return resources
     .flatMap((resource) => {
       const amount = amounts[resource.id];
-      return amount === undefined ? [] : [`${formatAmount(amount)} ${resource.name}`];
+      return amount === undefined ? [] : [`${formatAmount(amount, numbers)} ${resource.name}`];
     })
     .join(", ");
 }
 
-export function upgradeDetails(upgrade: Upgrade, cost: Amounts): string[] {
+export function upgradeDetails(upgrade: Upgrade, cost: Amounts, numbers: NumberFormat = "short"): string[] {
   return [
-    `Cost: ${formatAmounts(cost)}`,
-    ...(upgrade.uses === undefined ? [] : [`Uses: ${formatAmounts(upgrade.uses)} per second`]),
-    `Makes: ${formatAmounts(upgrade.perTick)} per second`,
+    `Cost: ${formatAmounts(cost, numbers)}`,
+    ...(upgrade.uses === undefined ? [] : [`Uses: ${formatAmounts(upgrade.uses, numbers)} per second`]),
+    `Makes: ${formatAmounts(upgrade.perTick, numbers)} per second`,
   ];
 }
 
-export function zoneDetails(zone: Zone): string[] {
+export function zoneDetails(zone: Zone, numbers: NumberFormat = "short"): string[] {
   const tool = tools.find((candidate) => candidate.id === zone.requires);
   return [
-    ...(Object.keys(zone.cost).length === 0 ? [] : [`Cost: ${formatAmounts(zone.cost)}`]),
+    ...(Object.keys(zone.cost).length === 0 ? [] : [`Cost: ${formatAmounts(zone.cost, numbers)}`]),
     ...(zone.requires === null || tool === undefined ? [] : [`Needs: ${tool.name}`]),
     `Mines: ${zone.resources.map((id) => resources.find((resource) => resource.id === id)?.name ?? id).join(", ")}`,
   ];
 }
 
-export function recipeDetails(recipe: Recipe): string[] {
+export function recipeDetails(recipe: Recipe, numbers: NumberFormat = "short"): string[] {
   return [
-    `Uses: ${formatAmounts(recipe.inputs)}`,
-    `Makes: ${formatAmounts(recipe.outputs)}`,
+    `Uses: ${formatAmounts(recipe.inputs, numbers)}`,
+    `Makes: ${formatAmounts(recipe.outputs, numbers)}`,
   ];
 }
 
@@ -71,6 +80,6 @@ export function formatClickPower(power: number): string {
   return `Click power: ×${power}`;
 }
 
-export function toolDetails(tool: Tool): string[] {
-  return [`Cost: ${formatAmounts(tool.cost)}`, formatClickPower(tool.clickPower)];
+export function toolDetails(tool: Tool, numbers: NumberFormat = "short"): string[] {
+  return [`Cost: ${formatAmounts(tool.cost, numbers)}`, formatClickPower(tool.clickPower)];
 }

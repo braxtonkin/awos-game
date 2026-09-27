@@ -7,7 +7,7 @@ import type { Section } from "./section.ts";
 export const craftingSection: Section = {
   id: "crafting",
   title: "Crafting",
-  build({ root, state, update }) {
+  build({ root, state, update, settings }) {
     const document = root.ownerDocument;
     const list = document.createElement("ul");
     list.id = "crafting";
@@ -21,7 +21,7 @@ export const craftingSection: Section = {
       const button = document.createElement("button");
       button.textContent = "Craft";
       button.addEventListener("click", () => update(craft(state(), recipe.id)));
-      row.append(name, ...recipeDetails(recipe).map((line) => {
+      row.append(name, ...recipeDetails(recipe, settings().numbers).map((line) => {
         const detail = document.createElement("span");
         detail.textContent = line;
         return detail;

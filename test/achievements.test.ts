@@ -5,7 +5,7 @@ import { loadSave } from "../src/save.ts";
 import { stateWith } from "./state.ts";
 
 test("achievement catalog has the required order", () => {
-  expect(achievements.map(({ id }) => id)).toEqual(["firstLog", "lumberjack", "stoneTools", "intoTheDark", "ironWorks", "ironTools", "torchbearer", "busyHands", "factory", "stockpile"]);
+  expect(achievements.map(({ id }) => id)).toEqual(["firstLog", "lumberjack", "stoneTools", "intoTheDark", "ironWorks", "ironTools", "torchbearer", "busyHands", "factory", "stockpile", "deeper", "shiny", "diamondTools", "goldRush", "clickStorm", "machinist", "smeltery", "torchlight", "obsidianWall", "millionaire"]);
 });
 
 test("mining wood earns firstLog only once", () => {
@@ -16,6 +16,18 @@ test("mining wood earns firstLog only once", () => {
 
 test("owning a Stone pickaxe earns stoneTools", () => {
   expect(earnAchievements(stateWith({ owned: { stonePickaxe: 1 } })).achievements).toEqual(["stoneTools"]);
+});
+
+test("reaching the Deep caves earns deeper", () => {
+  expect(earnAchievements(stateWith({ owned: { deepCaves: 1 } })).achievements).toEqual(["deeper"]);
+});
+
+test("gathering a Diamond earns shiny", () => {
+  expect(earnAchievements(stateWith({ stats: { clicks: 0, ticks: 0, gathered: { diamond: 1 } } })).achievements).toEqual(["shiny"]);
+});
+
+test("owning 10 Smelters earns smeltery", () => {
+  expect(earnAchievements(stateWith({ owned: { smelter: 10 } })).achievements).toEqual(["smeltery"]);
 });
 
 test("three achievements add three percent to machine production", () => {
