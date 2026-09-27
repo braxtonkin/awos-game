@@ -1,4 +1,4 @@
-import { amountOf, canMine, mine } from "../game.ts";
+import { amountOf, canMine, isDiscovered, mine } from "../game.ts";
 import { formatAmount } from "../format.ts";
 import { resources } from "../resources.ts";
 import type { Section } from "./section.ts";
@@ -28,6 +28,7 @@ export const resourcesSection: Section = {
       }
       list.append(row);
       return () => {
+        row.hidden = !isDiscovered(state(), resource.id);
         amount.textContent = formatAmount(amountOf(state(), resource.id));
         const button = row.querySelector("button");
         if (button) {

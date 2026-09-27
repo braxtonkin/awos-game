@@ -1,6 +1,7 @@
-import { buy, canBuy, costOf, ownedCount } from "../game.ts";
+import { buy, canBuy, costOf, isDiscovered, ownedCount } from "../game.ts";
 import { upgradeDetails } from "../format.ts";
 import { upgrades } from "../upgrades.ts";
+import type { ResourceId } from "../resources.ts";
 import type { Section } from "./section.ts";
 
 export const upgradesSection: Section = {
@@ -32,6 +33,7 @@ export const upgradesSection: Section = {
       row.append(details, button);
       list.append(row);
       return () => {
+        row.hidden = !(Object.keys(upgrade.cost) as ResourceId[]).every((id) => isDiscovered(state(), id));
         upgradeDetails(upgrade, costOf(state(), upgrade.id)).forEach((line, index) => {
           const detail = detailLines[index];
           if (detail !== undefined) detail.textContent = line;

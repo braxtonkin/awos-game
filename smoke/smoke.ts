@@ -50,6 +50,7 @@ try {
   console.log("PASS mine 15 wood");
 
   currentStep = "buy wooden axe";
+  await page.getByRole("tab", { name: "Build" }).click();
   const axe = page.locator("#upgrades li").filter({ has: page.locator(".name", { hasText: /^Wooden axe$/ }) });
   await axe.getByRole("button", { name: "Buy" }).click();
   assertText(await axe.textContent(), "Owned: 1");
@@ -59,6 +60,7 @@ try {
   currentStep = "reload keeps progress";
   await page.reload();
   await page.getByRole("heading", { name: "Block Idle" }).waitFor();
+  await page.getByRole("tab", { name: "Build" }).click();
   assertText(await axe.textContent(), "Owned: 1");
   checkErrors();
   console.log("PASS reload keeps progress");

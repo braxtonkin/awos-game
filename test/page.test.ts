@@ -8,6 +8,18 @@ test("new game displays zero wood and one Mine button", () => {
   expect(document.querySelector('[data-resource="wood"] button')?.textContent).toBe("Mine");
 });
 
+test("new game shows only discovered rows", () => {
+  openPage();
+  const visibleIds = (selector: string, attribute: string) => [...document.querySelectorAll<HTMLElement>(selector)]
+    .filter((row) => !row.hidden)
+    .map((row) => row.dataset[attribute]);
+  expect(visibleIds("[data-resource]", "resource")).toEqual(["dirt", "wood", "coal", "stone"]);
+  expect(visibleIds("[data-upgrade]", "upgrade")).toEqual(["woodenPickaxe", "woodenAxe", "furnace", "quarry", "coalMine"]);
+  expect(visibleIds("[data-tool]", "tool")).toEqual(["stonePickaxe"]);
+  expect(visibleIds("[data-zone]", "zone")).toEqual(["surface", "caves"]);
+  expect(visibleIds("[data-recipe]", "recipe")).toEqual(["torch"]);
+});
+
 test("new game locks iron ore and shows Caves as unavailable", () => {
   openPage();
   const ironButton = document.querySelector<HTMLButtonElement>('[data-resource="ironOre"] button');
@@ -26,6 +38,13 @@ test("exploring Caves unlocks iron ore and keeps saved iron ore visible", () => 
   expect(document.querySelector('[data-resource="ironOre"] .amount')?.textContent).toBe("5");
   document.querySelector<HTMLButtonElement>('[data-resource="ironOre"] button')?.click();
   expect(document.querySelector('[data-resource="ironOre"] .amount')?.textContent).toBe("7");
+});
+
+test("saved iron ore stays visible but locked before Caves are reached", () => {
+  openPage(JSON.stringify({ amounts: { ironOre: 5 }, owned: {} }));
+  const row = document.querySelector<HTMLElement>('[data-resource="ironOre"]');
+  expect(row?.hidden).toBe(false);
+  expect(row?.querySelector("button")?.textContent).toBe("Locked");
 });
 
 test("mining wood updates the page and persisted save", () => {
@@ -73,6 +92,13 @@ test("crafting consumes ingredients, produces Torch, and disables the button", (
   expect(button?.disabled).toBe(true);
 });
 
+test("crafting Torch reveals its resource row", () => {
+  openPage(JSON.stringify({ amounts: { wood: 1, coal: 1 }, owned: {} }));
+  expect(document.querySelector<HTMLElement>('[data-resource="torch"]')?.hidden).toBe(true);
+  document.querySelector<HTMLButtonElement>('[data-recipe="torch"] button')?.click();
+  expect(document.querySelector<HTMLElement>('[data-resource="torch"]')?.hidden).toBe(false);
+});
+
 test("Quarry and Coal mine follow Furnace in the upgrades list", () => {
   openPage();
   expect([...document.querySelectorAll("[data-upgrade] .name")].map((name) => name.textContent)).toEqual([
@@ -92,14 +118,14 @@ test("stats update after mining three times", () => {
 test("declining reset keeps progress", () => {
   openPage(undefined, { confirm: () => false });
   document.querySelector<HTMLButtonElement>('[data-resource="wood"] button')?.click();
-  document.querySelector<HTMLButtonElement>('[data-section="game"] button')?.click();
+  document.querySelector<HTMLButtonElement>('[data-section="reset"] button')?.click();
   expect(document.querySelector('[data-resource="wood"] .amount')?.textContent).toBe("1");
 });
 
 test("confirming reset clears resources and upgrades", () => {
   openPage();
   document.querySelector<HTMLButtonElement>('[data-resource="wood"] button')?.click();
-  document.querySelector<HTMLButtonElement>('[data-section="game"] button')?.click();
+  document.querySelector<HTMLButtonElement>('[data-section="reset"] button')?.click();
   expect(document.querySelector('[data-resource="wood"] .amount')?.textContent).toBe("0");
   expect([...document.querySelectorAll('[data-upgrade]')].every((row) => row.textContent?.includes("Owned: 0"))).toBe(true);
 });
