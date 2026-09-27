@@ -75,7 +75,7 @@ const state: GameState = {
   amounts: Object.fromEntries(resources.map(({ id }) => [id, 1000])),
   owned: Object.fromEntries(upgrades.map(({ id }) => [id, 10])),
   event: { id: "rain", secondsLeft: 60 },
-  achievements: ["firstLog", "lumberjack", "stoneTools", "intoTheDark", "ironWorks", "ironTools", "torchbearer", "busyHands", "factory", "stockpile", "deeper", "shiny", "diamondTools", "goldRush", "clickStorm", "machinist", "smeltery", "torchlight", "obsidianWall", "millionaire", "tooHot", "netheriteTools", "blazing", "pearlDiver", "ancientHistory", "freshStart", "worldHopper", "emeraldHoard", "lavaLord", "tenMillion"],
+  achievements: [],
 };
 
 const startedReference = performance.now();

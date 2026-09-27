@@ -205,7 +205,7 @@ function makeTickPlan(state: GameState): TickPlan {
   };
 }
 
-function tickWithPlan(state: GameState, plan: TickPlan): GameState {
+function tickWithPlan(state: GameState, plan: TickPlan, checkAchievements = true): GameState {
   const { producing: activeProducing, consuming: activeConsuming, multipliers } = plan;
   const amounts: Record<string, number> = { ...state.amounts };
   const output: Record<string, number> = {};
@@ -256,7 +256,7 @@ function tickWithPlan(state: GameState, plan: TickPlan): GameState {
     if (gained !== 0) gathered[resource.id] = (gathered[resource.id] ?? 0) + gained;
   }
   const next = { ...result, amounts: finalAmounts, event: secondsLeft > 0 && state.event !== null ? { ...state.event, secondsLeft } : null, stats: { ...state.stats, ticks: state.stats.ticks + 1, gathered } };
-  return state.achievements.length === achievements.length ? next : earnAchievements(next);
+  return !checkAchievements || state.achievements.length === achievements.length ? next : earnAchievements(next);
 }
 
 export function canCraft(state: GameState, recipeId: RecipeId): boolean {
@@ -278,7 +278,9 @@ export function catchUp(state: GameState, elapsedMs: number): GameState {
   let plannedEvent = next.event?.id ?? null;
   let plannedAchievements = next.achievements;
   for (let second = 0; second < seconds; second += 1) {
-    next = tickWithPlan(next, plan);
+    const gatheredBefore = next.stats.gathered;
+    next = tickWithPlan(next, plan, false);
+    if (second === 0 || gatheredAchievementThresholdCrossed(gatheredBefore, next.stats.gathered)) next = earnAchievements(next);
     const event = next.event?.id ?? null;
     if (event !== plannedEvent || next.achievements !== plannedAchievements) {
       plan = makeTickPlan(next);
@@ -287,6 +289,20 @@ export function catchUp(state: GameState, elapsedMs: number): GameState {
     }
   }
   return next;
+}
+
+function gatheredAchievementThresholdCrossed(before: Amounts, after: Amounts): boolean {
+  return achievements.some((achievement) => {
+    if (achievement.when.kind === "gathered") {
+      return (before[achievement.when.resource] ?? 0) < achievement.when.atLeast && (after[achievement.when.resource] ?? 0) >= achievement.when.atLeast;
+    }
+    if (achievement.when.kind === "gatheredTotal") {
+      const beforeTotal = resources.reduce((sum, resource) => sum + (before[resource.id] ?? 0), 0);
+      const afterTotal = resources.reduce((sum, resource) => sum + (after[resource.id] ?? 0), 0);
+      return beforeTotal < achievement.when.atLeast && afterTotal >= achievement.when.atLeast;
+    }
+    return false;
+  });
 }
 
 function affords(state: GameState, cost: Amounts): boolean {
