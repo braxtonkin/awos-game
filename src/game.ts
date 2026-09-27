@@ -280,7 +280,7 @@ export function catchUp(state: GameState, elapsedMs: number): GameState {
   for (let second = 0; second < seconds; second += 1) {
     const gatheredBefore = next.stats.gathered;
     next = tickWithPlan(next, plan, false);
-    if (second === 0 || gatheredAchievementThresholdCrossed(gatheredBefore, next.stats.gathered)) next = earnAchievements(next);
+    if (second === 0 || (next.achievements.length < achievements.length && gatheredAchievementThresholdCrossed(gatheredBefore, next.stats.gathered))) next = earnAchievements(next);
     const event = next.event?.id ?? null;
     if (event !== plannedEvent || next.achievements !== plannedAchievements) {
       plan = makeTickPlan(next);
