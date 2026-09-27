@@ -4,11 +4,13 @@ import { toolsSection } from "./tools.ts";
 import { upgradesSection } from "./upgrades.ts";
 import { resetSection } from "./reset.ts";
 import { statsSection } from "./stats.ts";
+import { saveSection } from "./save.ts";
 
 export const sections: readonly Section[] = [
   resourcesSection,
   toolsSection,
   upgradesSection,
   statsSection,
+  saveSection,
   resetSection,
 ];
