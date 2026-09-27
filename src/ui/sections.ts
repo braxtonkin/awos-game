@@ -9,6 +9,7 @@ import { statsSection } from "./stats.ts";
 import { saveSection } from "./save.ts";
 import { eventSection } from "./event.ts";
 import { achievementsSection } from "./achievements.ts";
+import { settingsSection } from "./settings.ts";
 
 export const sections: readonly Section[] = [
   eventSection,
@@ -20,5 +21,6 @@ export const sections: readonly Section[] = [
   statsSection,
   achievementsSection,
   saveSection,
+  settingsSection,
   resetSection,
 ];
