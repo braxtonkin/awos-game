@@ -8,6 +8,8 @@ import { zones } from "./zones.ts";
 import { events } from "./events.ts";
 import { achievements } from "./achievements.ts";
 import type { AchievementId } from "./achievements.ts";
+import { perks } from "./perks.ts";
+import type { PerkId } from "./perks.ts";
 
 export const currentSaveVersion = 2;
 
@@ -100,8 +102,16 @@ function parseState(value: SaveRecord): GameState {
     },
     event,
     achievements: keepAchievementIds(value.achievements),
-    prestige: { emeralds: keepCounts(value.prestige, ["emeralds"] as const).emeralds ?? 0, worlds: keepCounts(value.prestige, ["worlds"] as const).worlds ?? 0 },
+    prestige: { emeralds: keepCounts(value.prestige, ["emeralds"] as const).emeralds ?? 0, worlds: keepCounts(value.prestige, ["worlds"] as const).worlds ?? 0, perks: keepPerkIds(isRecord(value.prestige) ? value.prestige.perks : undefined) },
   };
+}
+
+function keepPerkIds(value: unknown): PerkId[] {
+  const known = new Set<string>(perks.map((perk) => perk.id));
+  if (!Array.isArray(value)) return [];
+  const kept: PerkId[] = [];
+  for (const id of value) if (typeof id === "string" && known.has(id) && !kept.includes(id as PerkId)) kept.push(id as PerkId);
+  return kept;
 }
 
 function keepUpgradeIds(value: unknown): UpgradeId[] {
