@@ -14,17 +14,19 @@ export const zonesSection: Section = {
     const redraws = zones.map((zone) => {
       const row = document.createElement("li");
       row.dataset.zone = zone.id;
+      const details = document.createElement("div");
+      details.className = "details";
       const name = document.createElement("span");
       name.className = "name";
       name.textContent = zone.name;
-      row.append(name, ...zoneDetails(zone).map((line) => {
+      details.append(name, ...zoneDetails(zone).map((line) => {
         const detail = document.createElement("span");
         detail.textContent = line;
         return detail;
       }));
       const button = document.createElement("button");
       button.addEventListener("click", () => update(buy(state(), zone.id)));
-      row.append(button);
+      row.append(details, button);
       list.append(row);
       return () => {
         const reached = ownedCount(state(), zone.id) > 0 || zone.id === zones[0]?.id;
