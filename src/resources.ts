@@ -11,6 +11,8 @@ export const resources = [
   { id: "coal", name: "Coal", perClick: 1 },
   { id: "stone", name: "Stone", perClick: 1 },
   { id: "charcoal", name: "Charcoal", perClick: 0 },
+  { id: "ironIngot", name: "Iron ingot", perClick: 0 },
+  { id: "torch", name: "Torch", perClick: 0 },
 ] as const satisfies readonly Resource[];
 
 export type ResourceId = (typeof resources)[number]["id"];

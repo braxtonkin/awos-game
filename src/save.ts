@@ -2,6 +2,8 @@ import { initialState } from "./game.ts";
 import type { GameState } from "./game.ts";
 import { resources } from "./resources.ts";
 import { upgrades } from "./upgrades.ts";
+import { tools } from "./tools.ts";
+import { zones } from "./zones.ts";
 
 export type LoadedSave = { readonly state: GameState; readonly savedAt: number | null };
 
@@ -34,7 +36,7 @@ export function loadSave(text: string | null): LoadedSave {
   return {
     state: {
       amounts: keepCounts(data.amounts, resources.map((resource) => resource.id)),
-      owned: keepCounts(data.owned, upgrades.map((upgrade) => upgrade.id)),
+      owned: keepCounts(data.owned, [...upgrades, ...tools, ...zones].map((purchase) => purchase.id)),
     },
     savedAt,
   };
