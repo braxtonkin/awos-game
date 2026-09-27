@@ -48,4 +48,5 @@ export const script: readonly Goal[] = [
   { order: 450, own: "ironMine", count: 8 },
   { order: 460, own: "furnace", count: 7 },
   { order: 470, own: "smelter", count: 6 },
+  { order: 485, newWorld: true },
 ];

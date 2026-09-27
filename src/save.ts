@@ -95,6 +95,7 @@ function parseState(value: SaveRecord): GameState {
     },
     event,
     achievements: keepAchievementIds(value.achievements),
+    prestige: { emeralds: keepCounts(value.prestige, ["emeralds"] as const).emeralds ?? 0, worlds: keepCounts(value.prestige, ["worlds"] as const).worlds ?? 0 },
   };
 }
 

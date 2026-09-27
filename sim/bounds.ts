@@ -11,4 +11,5 @@ export const bounds: Readonly<Record<string, number>> = {
   "deepCaves:1": 2000,
   "diamondPickaxe:1": 4380,
   "diamondDrill:4": 1870,
+  "newWorld": 2990,
 };
