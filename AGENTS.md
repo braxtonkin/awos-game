@@ -11,3 +11,4 @@ Agents extend this game through small tickets, and several branches often change
 - Add no runtime dependencies.
 - Write no code comments, except one that explains a why the code cannot show.
 - CI runs npm run smoke on every pull request. A change that moves the Mine or Buy buttons updates smoke/smoke.ts in the same pull request. The smoke steps need a browser, so run them only in CI.
+- A ticket that adds something to buy adds the goals and bounds it names to sim/script.ts and sim/bounds.ts. npm test fails when a goal becomes unreachable or a bound is missed.

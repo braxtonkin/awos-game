@@ -15,5 +15,5 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["src", "test", "vite.config.ts", "smoke"]
+  "include": ["src", "test", "sim", "vite.config.ts", "smoke"]
 }
