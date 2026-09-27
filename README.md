@@ -1,5 +1,17 @@
 # Block Idle
 
-Block Idle is a small Minecraft-flavored idle game that runs in the browser. You click to mine resources, then spend them on upgrades that produce more every second. The game saves your progress in the browser's local storage. AutoWorker uses this repository as a target, and its agents turn the tickets in `tickets.json` into pull requests.
+Block Idle is a Minecraft-inspired idle game. Mine resources by hand, buy upgrades and tools, and build machines that keep producing while you wait. Unlock zones with new resources, craft materials, and respond to events for boosts, trades, and rewards. Track achievements as you grow, then start new worlds to earn Emeralds and speed up future runs.
 
-To run the game, install Node 24, run `npm ci` and then `npm run dev`, and open the address that Vite prints. `npm test` runs the tests, `npm run typecheck` checks the types, and `npm run build` writes the static site to `dist`. Each push to `main` deploys that site to GitHub Pages. Before the first deploy, set the repository's Pages source to GitHub Actions.
+Play the game at [https://braxtonkin.github.io/awos-game/](https://braxtonkin.github.io/awos-game/).
+
+## Development
+
+Install Node 24, then run `npm ci` and `npm run dev` to start the local development server. Vite prints the address to open in your browser.
+
+- `npm test` runs the test suite.
+- `npm run sim` runs the progression simulator.
+- `npm run smoke` runs the browser smoke check and needs Chrome installed.
+- `npm run typecheck` checks TypeScript types.
+- `npm run build` creates the static site in `dist`.
+
+The site deploys to GitHub Pages on pushes to `main`. Set the repository's Pages source to GitHub Actions before the first deploy.
