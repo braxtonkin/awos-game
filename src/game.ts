@@ -39,6 +39,28 @@ export function costOf(state: GameState, id: PurchaseId): Amounts {
   }, {});
 }
 
+export function costOfMany(state: GameState, id: UpgradeId, count: number): Amounts {
+  let total: Amounts = {};
+  for (let index = 0; index < count; index += 1) {
+    const atCount = { ...state, owned: { ...state.owned, [id]: ownedCount(state, id) + index } };
+    total = mergeAmounts(total, costOf(atCount, id));
+  }
+  return total;
+}
+
+export function maxAffordable(state: GameState, id: UpgradeId): number {
+  let count = 0;
+  while (affords(state, costOfMany(state, id, count + 1))) count += 1;
+  return count;
+}
+
+export function buyMany(state: GameState, id: UpgradeId, count: number): GameState {
+  const cost = costOfMany(state, id, count);
+  if (!affords(state, cost)) return state;
+  const paid = addAmounts(state, cost, -1);
+  return { ...paid, owned: { ...paid.owned, [id]: ownedCount(paid, id) + count } };
+}
+
 export function zoneReached(state: GameState, zoneId: ZoneId): boolean {
   return zones[0]?.id === zoneId || ownedCount(state, zoneId) === 1;
 }
