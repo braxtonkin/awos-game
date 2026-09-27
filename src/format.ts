@@ -5,6 +5,10 @@ import type { Zone } from "./zones.ts";
 import { tools } from "./tools.ts";
 import type { Recipe } from "./recipes.ts";
 import type { Tool } from "./tools.ts";
+import { ownedCount } from "./game.ts";
+import type { GameState } from "./game.ts";
+import type { PurchaseId } from "./game.ts";
+import { zones } from "./zones.ts";
 
 export type NumberFormat = "short" | "full" | "scientific";
 
@@ -82,4 +86,22 @@ export function formatClickPower(power: number): string {
 
 export function toolDetails(tool: Tool, numbers: NumberFormat = "short"): string[] {
   return [`Cost: ${formatAmounts(tool.cost, numbers)}`, formatClickPower(tool.clickPower)];
+}
+
+export function nextGoal(state: GameState): string {
+  const goals: { id: PurchaseId; name: string; cost: Amounts }[] = [];
+  for (const zone of zones.slice(1)) {
+    if (zone.requires !== null && ownedCount(state, zone.requires) === 0) {
+      const tool = tools.find((candidate) => candidate.id === zone.requires);
+      if (tool !== undefined) goals.push(tool);
+    }
+    goals.push(zone);
+  }
+  for (const tool of tools) {
+    if (!goals.some((goal) => goal.id === tool.id)) goals.push(tool);
+  }
+  const goal = goals.find((candidate) => ownedCount(state, candidate.id) === 0);
+  return goal === undefined
+    ? "Next goal: Defeat the Ender Dragon."
+    : `Next goal: ${goal.name}. Costs ${formatAmounts(goal.cost)}.`;
 }
