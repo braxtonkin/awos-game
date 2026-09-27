@@ -13,11 +13,12 @@ export type PurchaseId = UpgradeId | ToolId | ZoneId;
 export type GameState = {
   readonly amounts: Amounts;
   readonly owned: Partial<Record<PurchaseId, number>>;
+  readonly stats: { readonly clicks: number; readonly ticks: number; readonly gathered: Amounts };
 };
 
 export const tickMs = 1000;
 export const maxOfflineMs = 8 * 60 * 60 * 1000;
-export const initialState: GameState = { amounts: {}, owned: {} };
+export const initialState: GameState = { amounts: {}, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} } };
 
 export function amountOf(state: GameState, resourceId: ResourceId): number {
   return state.amounts[resourceId] ?? 0;
@@ -50,7 +51,10 @@ export function clickPower(state: GameState): number {
 export function mine(state: GameState, resourceId: ResourceId): GameState {
   if (!canMine(state, resourceId)) return state;
   const resource = resources.find((candidate) => candidate.id === resourceId);
-  return resource === undefined ? state : addAmounts(state, { [resource.id]: resource.perClick }, clickPower(state));
+  if (resource === undefined) return state;
+  const mined = { [resource.id]: resource.perClick * clickPower(state) };
+  const next = addAmounts(state, mined, 1);
+  return { ...next, stats: { ...state.stats, clicks: state.stats.clicks + 1, gathered: mergeAmounts(state.stats.gathered, mined) } };
 }
 
 export function canBuy(state: GameState, id: PurchaseId): boolean {
@@ -76,15 +80,17 @@ export function productionMultiplier(_state: GameState, _resourceId: ResourceId)
 export function tick(state: GameState): GameState {
   const producing = upgrades.filter((upgrade: Upgrade) => upgrade.uses === undefined);
   const consuming = upgrades.filter((upgrade: Upgrade) => upgrade.uses !== undefined);
-  const produced = producing.reduce((next, upgrade) => {
+  const output = producing.reduce<Amounts>((totals, upgrade) => {
     const multiplied = resources.reduce<Amounts>((amounts, resource) => {
       const count = (upgrade.perTick as Amounts)[resource.id];
       if (count === undefined) return amounts;
       return { ...amounts, [resource.id]: count * productionMultiplier(state, resource.id) };
     }, {});
-    return addAmounts(next, multiplied, ownedCount(state, upgrade.id));
-  }, state);
-  return consuming.reduce((next, upgrade) => {
+    return mergeAmounts(totals, scaleAmounts(multiplied, ownedCount(state, upgrade.id)));
+  }, {});
+  const produced = addAmounts(state, output, 1);
+  const consumedOutput: Amounts = {};
+  const result = consuming.reduce((next, upgrade) => {
     let result = next;
     const uses: Amounts = upgrade.uses ?? {};
     for (let count = 0; count < ownedCount(state, upgrade.id); count += 1) {
@@ -98,10 +104,12 @@ export function tick(state: GameState): GameState {
           return value === undefined ? amounts : { ...amounts, [resource.id]: value * productionMultiplier(state, resource.id) };
         }, {});
         result = addAmounts(addAmounts(result, uses, -1), multiplied, 1);
+        Object.assign(consumedOutput, mergeAmounts(consumedOutput, multiplied));
       }
     }
     return result;
   }, produced);
+  return { ...result, stats: { ...state.stats, ticks: state.stats.ticks + 1, gathered: mergeAmounts(state.stats.gathered, mergeAmounts(output, consumedOutput)) } };
 }
 
 export function canCraft(state: GameState, recipeId: RecipeId): boolean {
@@ -112,7 +120,8 @@ export function canCraft(state: GameState, recipeId: RecipeId): boolean {
 export function craft(state: GameState, recipeId: RecipeId): GameState {
   const recipe = recipes.find((candidate) => candidate.id === recipeId);
   if (recipe === undefined || !canCraft(state, recipeId)) return state;
-  return addAmounts(addAmounts(state, recipe.inputs, -1), recipe.outputs, 1);
+  const next = addAmounts(addAmounts(state, recipe.inputs, -1), recipe.outputs, 1);
+  return { ...next, stats: { ...state.stats, clicks: state.stats.clicks + 1, gathered: mergeAmounts(state.stats.gathered, recipe.outputs) } };
 }
 
 export function catchUp(state: GameState, elapsedMs: number): GameState {
@@ -139,4 +148,18 @@ function addAmounts(state: GameState, amounts: Amounts, factor: number): GameSta
       return { ...totals, [resource.id]: amountOf(state, resource.id) + change * factor };
     }, state.amounts),
   };
+}
+
+function mergeAmounts(left: Amounts, right: Amounts): Amounts {
+  return resources.reduce<Amounts>((result, resource) => {
+    const amount = (left[resource.id] ?? 0) + (right[resource.id] ?? 0);
+    return amount === 0 ? result : { ...result, [resource.id]: amount };
+  }, {});
+}
+
+function scaleAmounts(amounts: Amounts, factor: number): Amounts {
+  return resources.reduce<Amounts>((result, resource) => {
+    const amount = amounts[resource.id];
+    return amount === undefined || factor === 0 ? result : { ...result, [resource.id]: amount * factor };
+  }, {});
 }
