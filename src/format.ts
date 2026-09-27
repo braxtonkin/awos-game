@@ -3,11 +3,19 @@ import type { Amounts } from "./resources.ts";
 import type { Upgrade } from "./upgrades.ts";
 import type { Zone } from "./zones.ts";
 import { tools } from "./tools.ts";
+import type { Tool } from "./tools.ts";
 
 export function formatAmount(amount: number): string {
-  if (amount < 1_000) return String(amount);
+  if (amount < 1_000) return String(Math.floor(amount));
 
-  const suffixes = ["K", "M", "B"];
+  const suffixes = ["K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc"];
+  if (amount >= 1e36) {
+    const exponent = Math.floor(Math.log10(amount));
+    const mantissa = Math.floor((amount / 10 ** exponent) * 10) / 10;
+    const value = Number.isInteger(mantissa) ? String(mantissa) : mantissa.toFixed(1);
+    return `${value}e${exponent}`;
+  }
+
   let scaled = amount;
   let suffixIndex = -1;
   while (scaled >= 1_000 && suffixIndex < suffixes.length - 1) {
@@ -28,9 +36,9 @@ export function formatAmounts(amounts: Amounts): string {
     .join(", ");
 }
 
-export function upgradeDetails(upgrade: Upgrade): string[] {
+export function upgradeDetails(upgrade: Upgrade, cost: Amounts): string[] {
   return [
-    `Cost: ${formatAmounts(upgrade.cost)}`,
+    `Cost: ${formatAmounts(cost)}`,
     ...(upgrade.uses === undefined ? [] : [`Uses: ${formatAmounts(upgrade.uses)} per second`]),
     `Makes: ${formatAmounts(upgrade.perTick)} per second`,
   ];
@@ -43,4 +51,12 @@ export function zoneDetails(zone: Zone): string[] {
     ...(zone.requires === null || tool === undefined ? [] : [`Needs: ${tool.name}`]),
     `Mines: ${zone.resources.map((id) => resources.find((resource) => resource.id === id)?.name ?? id).join(", ")}`,
   ];
+}
+
+export function formatClickPower(power: number): string {
+  return `Click power: ×${power}`;
+}
+
+export function toolDetails(tool: Tool): string[] {
+  return [`Cost: ${formatAmounts(tool.cost)}`, formatClickPower(tool.clickPower)];
 }

@@ -22,6 +22,15 @@ test("buying a wooden axe spends wood and shows it owned", () => {
   expect(document.querySelector('[data-resource="wood"] .amount')?.textContent).toBe("0");
 });
 
+test("upgrade cost and availability update at the next axe price", () => {
+  openPage(JSON.stringify({ amounts: { wood: 17 }, owned: { woodenAxe: 1 } }));
+  expect(document.querySelector('[data-upgrade="woodenAxe"]')?.textContent).toContain("Cost: 18 Wood");
+  expect(document.querySelector<HTMLButtonElement>('[data-upgrade="woodenAxe"] button')?.disabled).toBe(true);
+  openPage(JSON.stringify({ amounts: { wood: 18 }, owned: { woodenAxe: 1 } }));
+  expect(document.querySelector('[data-upgrade="woodenAxe"]')?.textContent).toContain("Cost: 18 Wood");
+  expect(document.querySelector<HTMLButtonElement>('[data-upgrade="woodenAxe"] button')?.disabled).toBe(false);
+});
+
 test("one page tick produces wood from two wooden axes", () => {
   const { page } = openPage(JSON.stringify({ amounts: {}, owned: { woodenAxe: 2 } }));
   page.tick();
@@ -31,7 +40,14 @@ test("one page tick produces wood from two wooden axes", () => {
 test("sections appear in page order", () => {
   openPage();
   expect([...document.querySelectorAll("main h2")].map((heading) => heading.textContent)).toEqual([
-    "Resources", "Zones", "Upgrades", "Game",
+    "Resources", "Tools", "Zones", "Upgrades", "Game",
+  ]);
+});
+
+test("Quarry and Coal mine follow Furnace in the upgrades list", () => {
+  openPage();
+  expect([...document.querySelectorAll("[data-upgrade] .name")].map((name) => name.textContent)).toEqual([
+    "Wooden pickaxe", "Wooden axe", "Furnace", "Quarry", "Coal mine",
   ]);
 });
 

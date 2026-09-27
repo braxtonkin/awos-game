@@ -27,9 +27,15 @@ export function ownedCount(state: GameState, upgradeId: PurchaseId): number {
   return state.owned[upgradeId] ?? 0;
 }
 
-export function costOf(_state: GameState, id: PurchaseId): Amounts {
+export function costOf(state: GameState, id: PurchaseId): Amounts {
   const entry = [...upgrades, ...tools, ...zones].find((purchase) => purchase.id === id);
-  return entry?.cost ?? {};
+  if (entry === undefined) return {};
+  if (!upgrades.some((upgrade) => upgrade.id === id)) return entry.cost;
+  const multiplier = 1.15 ** ownedCount(state, id);
+  return resources.reduce<Amounts>((cost, resource) => {
+    const base = (entry.cost as Amounts)[resource.id];
+    return base === undefined ? cost : { ...cost, [resource.id]: Math.ceil(base * multiplier) };
+  }, {});
 }
 
 export function zoneReached(state: GameState, zoneId: ZoneId): boolean {
