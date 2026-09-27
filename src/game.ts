@@ -191,16 +191,27 @@ export function productionMultiplier(state: GameState, resourceId: ResourceId): 
 }
 
 export function tick(state: GameState): GameState {
-  const producing = upgrades.filter((upgrade: Upgrade) => upgrade.uses === undefined);
-  const consuming = upgrades.filter((upgrade: Upgrade) => upgrade.uses !== undefined);
-  const activeProducing = state.paused.length === 0 ? producing : producing.filter((upgrade) => !state.paused.includes(upgrade.id as UpgradeId));
-  const activeConsuming = state.paused.length === 0 ? consuming : consuming.filter((upgrade) => !state.paused.includes(upgrade.id as UpgradeId));
+  return tickWithPlan(state, makeTickPlan(state));
+}
+
+type TickPlan = { producing: readonly Upgrade[]; consuming: readonly Upgrade[]; multipliers: Record<string, number> };
+
+function makeTickPlan(state: GameState): TickPlan {
+  const active = (upgrade: Upgrade) => state.paused.length === 0 || !state.paused.includes(upgrade.id as UpgradeId);
+  return {
+    producing: upgrades.filter((upgrade) => upgrade.uses === undefined && active(upgrade)),
+    consuming: upgrades.filter((upgrade) => upgrade.uses !== undefined && active(upgrade)),
+    multipliers: Object.fromEntries(resources.map(resource => [resource.id, productionMultiplier(state, resource.id)])),
+  };
+}
+
+function tickWithPlan(state: GameState, plan: TickPlan): GameState {
+  const { producing: activeProducing, consuming: activeConsuming, multipliers } = plan;
   const amounts: Record<string, number> = { ...state.amounts };
   const output: Record<string, number> = {};
   const gathered: Record<string, number> = { ...state.stats.gathered };
-  const multipliers = Object.fromEntries(resources.map(resource => [resource.id, productionMultiplier(state, resource.id)]));
   for (const upgrade of activeProducing) {
-    const count = ownedCount(state, upgrade.id);
+    const count = ownedCount(state, upgrade.id as UpgradeId);
     for (const resource of resources) {
       const perTick = (upgrade.perTick as Amounts)[resource.id];
       if (perTick === undefined) continue;
@@ -212,7 +223,7 @@ export function tick(state: GameState): GameState {
   const consumedOutput: Amounts = {};
   for (const upgrade of activeConsuming) {
     const uses: Amounts = upgrade.uses ?? {};
-    const runs = Math.min(ownedCount(state, upgrade.id), ...resources.flatMap(resource => {
+    const runs = Math.min(ownedCount(state, upgrade.id as UpgradeId), ...resources.flatMap(resource => {
       const needed = uses[resource.id];
       return needed === undefined ? [] : [Math.floor((amounts[resource.id] ?? 0) / needed)];
     }));
@@ -262,7 +273,18 @@ export function craft(state: GameState, recipeId: RecipeId): GameState {
 export function catchUp(state: GameState, elapsedMs: number): GameState {
   const seconds = Math.floor(Math.min(Math.max(elapsedMs, 0), maxOfflineMs) / tickMs);
   let next = state;
-  for (let second = 0; second < seconds; second += 1) next = tick(next);
+  let plan = makeTickPlan(next);
+  let plannedEvent = next.event?.id ?? null;
+  let plannedAchievements = next.achievements;
+  for (let second = 0; second < seconds; second += 1) {
+    next = tickWithPlan(next, plan);
+    const event = next.event?.id ?? null;
+    if (event !== plannedEvent || next.achievements !== plannedAchievements) {
+      plan = makeTickPlan(next);
+      plannedEvent = event;
+      plannedAchievements = next.achievements;
+    }
+  }
   return next;
 }
 
