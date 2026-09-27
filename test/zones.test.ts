@@ -33,6 +33,6 @@ test("existing Iron ore remains visible before reaching Caves", () => {
 test("Zones appears between tools and upgrades in the section order", () => {
   openPage();
   expect([...document.querySelectorAll("main h2")].map((heading) => heading.textContent)).toEqual([
-    "Resources", "Tools", "Zones", "Upgrades", "Crafting", "Stats", "Save", "Game",
+    "Resources", "Tools", "Zones", "Upgrades", "Crafting", "Stats", "Achievements", "Save", "Game",
   ]);
 });
