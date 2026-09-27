@@ -51,7 +51,7 @@ test("mining wood updates the page and persisted save", () => {
   const { storage } = openPage();
   document.querySelector<HTMLButtonElement>('[data-resource="wood"] button')?.click();
   expect(document.querySelector('[data-resource="wood"] .amount')?.textContent).toBe("1");
-  expect(deserialize(storage.getItem("awos-game:save"))).toEqual({ amounts: { wood: 1 }, owned: {}, paused: [], stats: { clicks: 1, ticks: 0, gathered: { wood: 1 } }, lifetime: { clicks: 0, ticks: 0, gathered: 0 }, event: null, achievements: ["firstLog"], prestige: { emeralds: 0, worlds: 0 } });
+  expect(deserialize(storage.getItem("awos-game:save"))).toEqual({ amounts: { wood: 1 }, owned: {}, paused: [], stats: { clicks: 1, ticks: 0, gathered: { wood: 1 } }, lifetime: { clicks: 0, ticks: 0, gathered: 0 }, event: null, achievements: ["firstLog"], prestige: { emeralds: 0, worlds: 0, perks: [] } });
 });
 
 test("buying a wooden axe spends wood and shows it owned", () => {
@@ -103,7 +103,7 @@ test("Quarry, Coal mine, and automation machines follow Furnace in the upgrades 
   openPage();
   expect([...document.querySelectorAll("[data-upgrade] .name")].map((name) => name.textContent)).toEqual([
     "Wooden pickaxe", "Wooden axe", "Furnace", "Quarry", "Coal mine", "Iron mine", "Smelter", "Torch workshop",
-    "Gold mine", "Gold smelter", "Lava pump", "Diamond drill",
+    "Gold mine", "Gold smelter", "Lava pump", "Diamond drill", "Blaze farm", "Enderman farm", "Debris drill",
   ]);
 });
 

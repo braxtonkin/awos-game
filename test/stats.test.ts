@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { buy, craft, mine, tick } from "../src/game.ts";
+import { buy, craft, initialState, mine, tick } from "../src/game.ts";
 import { loadSave } from "../src/save.ts";
 import { serialize } from "../src/save.ts";
 import { openPage } from "./page.ts";
@@ -36,7 +36,7 @@ test("old v2 fixture loads with zero lifetime totals", () => {
 });
 
 test("stats page displays combined all-world totals", () => {
-  openPage(serialize(stateWith({ stats: { clicks: 2, ticks: 60, gathered: { wood: 100 } }, lifetime: { clicks: 3, ticks: 3600, gathered: 500 }, prestige: { emeralds: 0, worlds: 2 } }), 1_000_000));
+  openPage(serialize(stateWith({ stats: { clicks: 2, ticks: 60, gathered: { wood: 100 } }, lifetime: { clicks: 3, ticks: 3600, gathered: 500 }, prestige: { ...initialState.prestige, emeralds: 0, worlds: 2 } }), 1_000_000));
   const stats = document.querySelector('[data-section="stats"]')?.textContent ?? "";
   expect(stats).toContain("Worlds started: 2");
   expect(stats).toContain("Time in all worlds: 1h 01m");

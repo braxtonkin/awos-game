@@ -14,5 +14,6 @@ export const bounds: Readonly<Record<string, number>> = {
   "nether:1": 2990,
   "newWorld": 2990,
   "netheritePickaxe:1": 5090,
+  "endermanFarm:4": 4100,
   "end:1": 5310,
 };

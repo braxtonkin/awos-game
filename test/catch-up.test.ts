@@ -22,7 +22,7 @@ const closeEnough = (actual: unknown, expected: unknown): boolean => {
 
 const wave2 = deserialize(readFileSync(`${process.cwd()}/test/fixtures/saves/wave-2.json`, "utf8"));
 const wave3 = deserialize(readFileSync(`${process.cwd()}/test/fixtures/catch-up/wave-3-input.json`, "utf8"));
-const lateGame = stateWith({ ...wave2, amounts: Object.fromEntries(resources.map(resource => [resource.id, 1000])), owned: Object.fromEntries(upgrades.map(upgrade => [upgrade.id, 10])), event: { id: "rain", secondsLeft: 60 } });
+const lateGame = stateWith({ amounts: Object.fromEntries(resources.map(resource => [resource.id, 1000])), owned: Object.fromEntries(upgrades.map(upgrade => [upgrade.id, 10])), event: { id: "rain", secondsLeft: 60 } });
 
 describe("offline catch-up", () => {
   test.each([["wave-2", wave2], ["wave-3", wave3], ["synthetic", lateGame]] as const)("matches the saved %s result", (name, state) => {

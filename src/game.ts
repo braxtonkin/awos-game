@@ -12,6 +12,8 @@ import { events, eventChance } from "./events.ts";
 import { achievements } from "./achievements.ts";
 import type { AchievementId, Condition } from "./achievements.ts";
 import type { EventId } from "./events.ts";
+import { perks } from "./perks.ts";
+import type { PerkId } from "./perks.ts";
 
 export type PurchaseId = UpgradeId | ToolId | ZoneId;
 export type GameState = {
@@ -22,12 +24,18 @@ export type GameState = {
   readonly lifetime: { readonly clicks: number; readonly ticks: number; readonly gathered: number };
   readonly event: { readonly id: EventId; readonly secondsLeft: number } | null;
   readonly achievements: readonly AchievementId[];
-  readonly prestige: { readonly emeralds: number; readonly worlds: number };
+  readonly prestige: { readonly emeralds: number; readonly worlds: number; readonly perks: readonly PerkId[] };
 };
 
 export const tickMs = 1000;
 export const maxOfflineMs = 8 * 60 * 60 * 1000;
-export const initialState: GameState = { amounts: {}, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, lifetime: { clicks: 0, ticks: 0, gathered: 0 }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0 } };
+export const initialState: GameState = { amounts: {}, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, lifetime: { clicks: 0, ticks: 0, gathered: 0 }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } };
+
+export function buyPerk(state: GameState, id: PerkId): GameState {
+  const perk = perks.find((candidate) => candidate.id === id);
+  if (perk === undefined || state.prestige.perks.includes(id) || state.prestige.emeralds < perk.cost) return state;
+  return { ...state, prestige: { ...state.prestige, emeralds: state.prestige.emeralds - perk.cost, perks: [...state.prestige.perks, id] } };
+}
 
 export function emeraldsForNewWorld(state: GameState): number {
   const total = resources.reduce((sum, resource) => sum + (state.stats.gathered[resource.id] ?? 0), 0);
@@ -38,7 +46,8 @@ export function canStartNewWorld(state: GameState): boolean { return emeraldsFor
 
 export function startNewWorld(state: GameState): GameState {
   if (!canStartNewWorld(state)) return state;
-  return { ...initialState, achievements: state.achievements, lifetime: { clicks: state.lifetime.clicks + state.stats.clicks, ticks: state.lifetime.ticks + state.stats.ticks, gathered: state.lifetime.gathered + resources.reduce((sum, resource) => sum + (state.stats.gathered[resource.id] ?? 0), 0) }, prestige: { emeralds: state.prestige.emeralds + emeraldsForNewWorld(state), worlds: state.prestige.worlds + 1 } };
+  const owned = perks.filter((perk) => state.prestige.perks.includes(perk.id) && perk.effect.kind === "startWith").reduce<Partial<Record<PurchaseId, number>>>((counts, perk) => perk.effect.kind === "startWith" ? { ...counts, ...Object.fromEntries(Object.entries(perk.effect.owned).map(([id, count]) => [id, (counts[id as PurchaseId] ?? 0) + (count ?? 0)])) } : counts, {});
+  return { ...initialState, owned, achievements: state.achievements, lifetime: { clicks: state.lifetime.clicks + state.stats.clicks, ticks: state.lifetime.ticks + state.stats.ticks, gathered: state.lifetime.gathered + resources.reduce((sum, resource) => sum + (state.stats.gathered[resource.id] ?? 0), 0) }, prestige: { emeralds: state.prestige.emeralds + emeraldsForNewWorld(state), worlds: state.prestige.worlds + 1, perks: state.prestige.perks } };
 }
 
 export function togglePause(state: GameState, id: UpgradeId): GameState {
@@ -65,7 +74,8 @@ export function earnAchievements(state: GameState): GameState {
 }
 
 export function rollEvent(state: GameState, chance: number, pick: number): GameState {
-  if (state.event !== null || chance >= eventChance) return state;
+  const factor = ownedPerkEffects(state, "eventChance").reduce((total, effect) => total * effect.factor, 1);
+  if (state.event !== null || chance >= eventChance * factor) return state;
   const event = events[Math.floor(pick * events.length)];
   if (event === undefined) return state;
   return { ...state, event: { id: event.id, secondsLeft: event.seconds } };
@@ -103,6 +113,10 @@ export function canAffordEvent(state: GameState, cost: Amounts): boolean { retur
 
 export function ownedCount(state: GameState, upgradeId: PurchaseId): number {
   return state.owned[upgradeId] ?? 0;
+}
+
+function ownedPerkEffects<Kind extends "offlineHours" | "eventChance" | "clickPower">(state: GameState, kind: Kind): Extract<(typeof perks)[number]["effect"], { readonly kind: Kind }>[] {
+  return perks.filter((perk) => state.prestige.perks.includes(perk.id) && perk.effect.kind === kind).map((perk) => perk.effect as Extract<(typeof perks)[number]["effect"], { readonly kind: Kind }>);
 }
 
 export function costOf(state: GameState, id: PurchaseId): Amounts {
@@ -156,7 +170,8 @@ export function isDiscovered(state: GameState, resourceId: ResourceId): boolean 
 export function clickPower(state: GameState): number {
   const power = tools.reduce((best, tool) => ownedCount(state, tool.id) > 0 ? Math.max(best, tool.clickPower) : best, 1);
   const event = state.event === null ? undefined : events.find((candidate) => candidate.id === state.event?.id);
-  return (event?.effect.kind === "clickPower" ? power * event.effect.factor : power) * (1 + 0.1 * state.prestige.emeralds);
+  const perkFactor = ownedPerkEffects(state, "clickPower").reduce((total, effect) => total * effect.factor, 1);
+  return (event?.effect.kind === "clickPower" ? power * event.effect.factor : power) * perkFactor * (1 + 0.1 * state.prestige.emeralds);
 }
 
 export function mine(state: GameState, resourceId: ResourceId): GameState {
@@ -272,7 +287,8 @@ export function craft(state: GameState, recipeId: RecipeId): GameState {
 }
 
 export function catchUp(state: GameState, elapsedMs: number): GameState {
-  const seconds = Math.floor(Math.min(Math.max(elapsedMs, 0), maxOfflineMs) / tickMs);
+  const hours = ownedPerkEffects(state, "offlineHours").reduce((maximum, effect) => Math.max(maximum, effect.hours), 8);
+  const seconds = Math.floor(Math.min(Math.max(elapsedMs, 0), hours * 60 * 60 * 1000) / tickMs);
   let next = state;
   let plan = makeTickPlan(next);
   let plannedEvent = next.event?.id ?? null;

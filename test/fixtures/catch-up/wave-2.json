@@ -66,6 +66,7 @@
   ],
   "prestige": {
     "emeralds": 0,
-    "worlds": 0
+    "worlds": 0,
+    "perks": []
   }
 }
