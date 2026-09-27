@@ -1,9 +1,9 @@
 import { expect, test } from "vitest";
-import { buy, canBuy, catchUp, initialState, mine, tick } from "../src/game.ts";
+import { buy, canBuy, catchUp, mine, tick } from "../src/game.ts";
 import { stateWith } from "./state.ts";
 
 test("mining dirt in a new game gives 1 dirt", () => {
-  expect(mine(initialState, "dirt").amounts).toEqual({ dirt: 1 });
+  expect(mine(stateWith({}), "dirt").amounts).toEqual({ dirt: 1 });
 });
 
 test("mining wood adds 1 wood and leaves the dirt as it was", () => {
@@ -11,15 +11,15 @@ test("mining wood adds 1 wood and leaves the dirt as it was", () => {
 });
 
 test("mining iron ore in a new game gives 1 iron ore", () => {
-  expect(mine(initialState, "ironOre").amounts).toEqual({ ironOre: 1 });
+  expect(mine(stateWith({}), "ironOre").amounts).toEqual({ ironOre: 1 });
 });
 
 test("mining coal in a new game gives 1 coal", () => {
-  expect(mine(initialState, "coal").amounts).toEqual({ coal: 1 });
+  expect(mine(stateWith({}), "coal").amounts).toEqual({ coal: 1 });
 });
 
 test("mining stone in a new game gives 1 stone", () => {
-  expect(mine(initialState, "stone").amounts).toEqual({ stone: 1 });
+  expect(mine(stateWith({}), "stone").amounts).toEqual({ stone: 1 });
 });
 
 test("a wooden pickaxe can be bought with exactly 10 wood", () => {
