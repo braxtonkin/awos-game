@@ -1,0 +1,89 @@
+{
+  "amounts": {
+    "dirt": 340296.99999980506,
+    "wood": 0.5999999999718355,
+    "ironOre": 284330.00000006554,
+    "coal": 45147.00000001081,
+    "stone": 679593.9999996116,
+    "charcoal": 0.6700000000324904,
+    "ironIngot": 466641.23999794904,
+    "torch": 34546.24000000439,
+    "goldOre": 103594.00000004226,
+    "redstone": 1000,
+    "diamond": 340296.99999980506,
+    "obsidian": 340296.99999980506,
+    "goldIngot": 679593.9999966243,
+    "netherrack": 1000,
+    "netherQuartz": 1000,
+    "ancientDebris": 1000,
+    "blazeRod": 1000,
+    "enderPearl": 1000,
+    "netheriteIngot": 1000,
+    "blazePowder": 1000,
+    "endStone": 1000,
+    "eyeOfEnder": 1000
+  },
+  "owned": {
+    "woodenPickaxe": 10,
+    "woodenAxe": 10,
+    "furnace": 10,
+    "quarry": 10,
+    "coalMine": 10,
+    "ironMine": 10,
+    "smelter": 10,
+    "torchWorkshop": 10,
+    "goldMine": 10,
+    "goldSmelter": 10,
+    "lavaPump": 10,
+    "diamondDrill": 10
+  },
+  "paused": [],
+  "stats": {
+    "clicks": 2112,
+    "ticks": 30000,
+    "gathered": {
+      "dirt": 342114.41999980237,
+      "wood": 365514.7099997665,
+      "ironOre": 687498.8799995999,
+      "coal": 345682.37999979715,
+      "stone": 698313.1199995836,
+      "charcoal": 201386.59999988892,
+      "ironIngot": 472552.86000007216,
+      "torch": 41084.12000000602,
+      "goldOre": 678593.9999996132,
+      "diamond": 340298.99999980506,
+      "obsidian": 339296.9999998066,
+      "goldIngot": 678593.9999996132
+    }
+  },
+  "lifetime": {
+    "clicks": 0,
+    "ticks": 0,
+    "gathered": 0
+  },
+  "event": null,
+  "achievements": [
+    "firstLog",
+    "stoneTools",
+    "intoTheDark",
+    "lumberjack",
+    "ironWorks",
+    "ironTools",
+    "factory",
+    "busyHands",
+    "torchbearer",
+    "shiny",
+    "machinist",
+    "smeltery",
+    "lavaLord",
+    "goldRush",
+    "torchlight",
+    "stockpile",
+    "obsidianWall",
+    "millionaire"
+  ],
+  "prestige": {
+    "emeralds": 0,
+    "worlds": 0
+  }
+}

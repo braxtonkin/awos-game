@@ -195,46 +195,56 @@ export function tick(state: GameState): GameState {
   const consuming = upgrades.filter((upgrade: Upgrade) => upgrade.uses !== undefined);
   const activeProducing = state.paused.length === 0 ? producing : producing.filter((upgrade) => !state.paused.includes(upgrade.id as UpgradeId));
   const activeConsuming = state.paused.length === 0 ? consuming : consuming.filter((upgrade) => !state.paused.includes(upgrade.id as UpgradeId));
-  const output = activeProducing.reduce<Amounts>((totals, upgrade) => {
-    const multiplied = resources.reduce<Amounts>((amounts, resource) => {
-      const count = (upgrade.perTick as Amounts)[resource.id];
-      if (count === undefined) return amounts;
-      return { ...amounts, [resource.id]: count * productionMultiplier(state, resource.id) };
-    }, {});
-    return mergeAmounts(totals, scaleAmounts(multiplied, ownedCount(state, upgrade.id)));
-  }, {});
-  const produced = addAmounts(state, output, 1);
-  const consumedOutput: Amounts = {};
-  const result = activeConsuming.reduce((next, upgrade) => {
-    let result = next;
-    const uses: Amounts = upgrade.uses ?? {};
-    for (let count = 0; count < ownedCount(state, upgrade.id); count += 1) {
-      const canUse = resources.every((resource) => {
-        const needed = uses[resource.id];
-        return needed === undefined || amountOf(result, resource.id) >= needed;
-      });
-      if (canUse) {
-        const multiplied = resources.reduce<Amounts>((amounts, resource) => {
-          const value = (upgrade.perTick as Amounts)[resource.id];
-          return value === undefined ? amounts : { ...amounts, [resource.id]: value * productionMultiplier(state, resource.id) };
-        }, {});
-        result = addAmounts(addAmounts(result, uses, -1), multiplied, 1);
-        Object.assign(consumedOutput, mergeAmounts(consumedOutput, multiplied));
-      }
+  const amounts: Record<string, number> = { ...state.amounts };
+  const output: Record<string, number> = {};
+  const gathered: Record<string, number> = { ...state.stats.gathered };
+  const multipliers = Object.fromEntries(resources.map(resource => [resource.id, productionMultiplier(state, resource.id)]));
+  for (const upgrade of activeProducing) {
+    const count = ownedCount(state, upgrade.id);
+    for (const resource of resources) {
+      const perTick = (upgrade.perTick as Amounts)[resource.id];
+      if (perTick === undefined) continue;
+      const amount = perTick * (multipliers[resource.id] ?? 1) * count;
+      if (amount !== 0) amounts[resource.id] = (amounts[resource.id] ?? 0) + amount;
+      if (count !== 0) output[resource.id] = (output[resource.id] ?? 0) + perTick * (multipliers[resource.id] ?? 1) * count;
     }
-    return result;
-  }, produced);
+  }
+  const consumedOutput: Amounts = {};
+  for (const upgrade of activeConsuming) {
+    const uses: Amounts = upgrade.uses ?? {};
+    const runs = Math.min(ownedCount(state, upgrade.id), ...resources.flatMap(resource => {
+      const needed = uses[resource.id];
+      return needed === undefined ? [] : [Math.floor((amounts[resource.id] ?? 0) / needed)];
+    }));
+    if (runs <= 0) continue;
+    for (const resource of resources) {
+      const needed = uses[resource.id];
+      if (needed !== undefined) amounts[resource.id] = (amounts[resource.id] ?? 0) - needed * runs;
+    }
+    for (const resource of resources) {
+      const perTick = (upgrade.perTick as Amounts)[resource.id];
+      if (perTick === undefined) continue;
+      const amount = perTick * (multipliers[resource.id] ?? 1) * runs;
+      if (amount !== 0) amounts[resource.id] = (amounts[resource.id] ?? 0) + amount;
+      consumedOutput[resource.id] = (consumedOutput[resource.id] ?? 0) + perTick * (multipliers[resource.id] ?? 1) * runs;
+    }
+  }
+  const result: GameState = { ...state, amounts };
   const secondsLeft = state.event === null ? 0 : state.event.secondsLeft - 1;
   const activeEvent = state.event;
   const definition = secondsLeft <= 0 && activeEvent !== null ? events.find((candidate) => candidate.id === activeEvent.id) : undefined;
-  let finalResult = result;
+  let finalAmounts = amounts;
   if (secondsLeft <= 0 && definition?.effect.kind === "creeper") {
     const share = definition.effect.share;
     const affectedResources = definition.effect.resources;
-    const loss = affectedResources.reduce<Amounts>((amounts, resource) => ({ ...amounts, [resource]: Math.floor(amountOf(result, resource) * share) }), {});
-    finalResult = addAmounts(result, loss, -1);
+    finalAmounts = { ...amounts };
+    for (const resource of affectedResources) finalAmounts[resource] = (finalAmounts[resource] ?? 0) - Math.floor((amounts[resource] ?? 0) * share);
   }
-  return earnAchievements({ ...finalResult, event: secondsLeft > 0 && state.event !== null ? { ...state.event, secondsLeft } : null, stats: { ...state.stats, ticks: state.stats.ticks + 1, gathered: mergeAmounts(state.stats.gathered, mergeAmounts(output, consumedOutput)) } });
+  for (const resource of resources) {
+    const gained = (output[resource.id] ?? 0) + (consumedOutput[resource.id] ?? 0);
+    if (gained !== 0) gathered[resource.id] = (gathered[resource.id] ?? 0) + gained;
+  }
+  return earnAchievements({ ...result, amounts: finalAmounts, event: secondsLeft > 0 && state.event !== null ? { ...state.event, secondsLeft } : null, stats: { ...state.stats, ticks: state.stats.ticks + 1, gathered } });
 }
 
 export function canCraft(state: GameState, recipeId: RecipeId): boolean {
@@ -279,13 +289,6 @@ function mergeAmounts(left: Amounts, right: Amounts): Amounts {
   return resources.reduce<Amounts>((result, resource) => {
     const amount = (left[resource.id] ?? 0) + (right[resource.id] ?? 0);
     return amount === 0 ? result : { ...result, [resource.id]: amount };
-  }, {});
-}
-
-function scaleAmounts(amounts: Amounts, factor: number): Amounts {
-  return resources.reduce<Amounts>((result, resource) => {
-    const amount = amounts[resource.id];
-    return amount === undefined || factor === 0 ? result : { ...result, [resource.id]: amount * factor };
   }, {});
 }
 
