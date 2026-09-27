@@ -60,6 +60,12 @@ test("zoneDetails lists Surface resources", () => {
   expect(zoneDetails(zones[0]!)).toEqual(["Mines: Dirt, Wood, Coal, Stone"]);
 });
 
+test("zoneDetails lists the Deep caves cost, requirement, and resources", () => {
+  expect(zoneDetails(zones[2]!)).toEqual([
+    "Cost: 8K Stone, 1K Iron ingot, 2K Torch", "Needs: Iron pickaxe", "Mines: Gold ore, Redstone, Diamond, Obsidian",
+  ]);
+});
+
 test("recipeDetails shows the Torch and Iron ingot inputs and outputs", () => {
   expect(recipeDetails(recipes[0])).toEqual(["Uses: 1 Wood, 1 Coal", "Makes: 4 Torch"]);
   expect(recipeDetails(recipes[1])).toEqual(["Uses: 1 Iron ore, 1 Coal", "Makes: 1 Iron ingot"]);

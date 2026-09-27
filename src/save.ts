@@ -4,6 +4,7 @@ import { resources } from "./resources.ts";
 import { upgrades } from "./upgrades.ts";
 import { tools } from "./tools.ts";
 import { zones } from "./zones.ts";
+import { events } from "./events.ts";
 import { achievements } from "./achievements.ts";
 import type { AchievementId } from "./achievements.ts";
 
@@ -77,6 +78,11 @@ export function loadSave(text: string | null): LoadedSave {
 }
 
 function parseState(value: SaveRecord): GameState {
+  const eventValue = isRecord(value.event) ? value.event : null;
+  const eventDefinition = eventValue === null ? undefined : events.find((event) => event.id === eventValue.id);
+  const event = eventDefinition !== undefined && typeof eventValue?.secondsLeft === "number" && Number.isInteger(eventValue.secondsLeft) && eventValue.secondsLeft >= 1 && eventValue.secondsLeft <= eventDefinition.seconds
+    ? { id: eventDefinition.id, secondsLeft: eventValue.secondsLeft }
+    : null;
   return {
     amounts: { ...initialState.amounts, ...keepCounts(value.amounts, resources.map((resource) => resource.id)) },
     owned: { ...initialState.owned, ...keepCounts(value.owned, [...upgrades, ...tools, ...zones].map((purchase) => purchase.id)) },
@@ -85,6 +91,7 @@ function parseState(value: SaveRecord): GameState {
       ticks: keepCounts(value.stats, ["ticks"] as const).ticks ?? initialState.stats.ticks,
       gathered: { ...initialState.stats.gathered, ...keepCounts(isRecord(value.stats) ? value.stats.gathered : undefined, resources.map((resource) => resource.id)) },
     },
+    event,
     achievements: keepAchievementIds(value.achievements),
   };
 }
@@ -93,9 +100,7 @@ function keepAchievementIds(value: unknown): AchievementId[] {
   const known = new Set<string>(achievements.map((achievement) => achievement.id));
   if (!Array.isArray(value)) return [];
   const kept: AchievementId[] = [];
-  for (const id of value) {
-    if (typeof id === "string" && known.has(id) && !kept.includes(id as AchievementId)) kept.push(id as AchievementId);
-  }
+  for (const id of value) if (typeof id === "string" && known.has(id) && !kept.includes(id as AchievementId)) kept.push(id as AchievementId);
   return kept;
 }
 

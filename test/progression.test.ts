@@ -7,9 +7,9 @@ import { loadSave } from "../src/save.ts";
 import { stateWith } from "./state.ts";
 
 test("catalogs expose the ordered entries", () => {
-  expect(tools.map(({ id }) => id)).toEqual(["stonePickaxe", "ironPickaxe"]);
-  expect(zones.map(({ id }) => id)).toEqual(["surface", "caves"]);
-  expect(recipes.map(({ id }) => id)).toEqual(["torch", "ironIngot"]);
+  expect(tools.map(({ id }) => id)).toEqual(["stonePickaxe", "ironPickaxe", "diamondPickaxe"]);
+  expect(zones.map(({ id }) => id)).toEqual(["surface", "caves", "deepCaves"]);
+  expect(recipes.map(({ id }) => id)).toEqual(["torch", "ironIngot", "goldIngot"]);
 });
 
 test("purchase costs and tool purchases", () => {

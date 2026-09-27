@@ -2,8 +2,8 @@ import { expect, test } from "vitest";
 import { decodeSave, loadSave, serialize } from "../src/save.ts";
 
 test("serialize writes a version 2 save with its timestamp", () => {
-  expect(serialize({ amounts: { dirt: 3 }, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, achievements: [] }, 1234)).toBe(
-    '{"version":2,"savedAt":1234,"state":{"amounts":{"dirt":3},"owned":{},"stats":{"clicks":0,"ticks":0,"gathered":{}},"achievements":[]}}',
+  expect(serialize({ amounts: { dirt: 3 }, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [] }, 1234)).toBe(
+    '{"version":2,"savedAt":1234,"state":{"amounts":{"dirt":3},"owned":{},"stats":{"clicks":0,"ticks":0,"gathered":{}},"event":null,"achievements":[]}}',
   );
 });
 
@@ -18,7 +18,7 @@ test.each([
       kind: "loaded",
       version,
       savedAt,
-      state: { amounts: { dirt: 12, wood: 30 }, owned: { woodenAxe: 2 }, stats: { clicks: 0, ticks: 0, gathered: {} }, achievements: [] },
+      state: { amounts: { dirt: 12, wood: 30 }, owned: { woodenAxe: 2 }, stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [] },
     });
   },
 );
@@ -37,7 +37,7 @@ test("decodeSave drops unknown ids, negative values, and non-numbers", () => {
     kind: "loaded",
     version: 2,
     savedAt: 5,
-    state: { amounts: { wood: 2 }, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, achievements: [] },
+    state: { amounts: { wood: 2 }, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [] },
   });
 });
 
@@ -46,11 +46,23 @@ test("decodeSave preserves initial values for missing fields", () => {
     kind: "loaded",
     version: 2,
     savedAt: 5,
-    state: { amounts: { wood: 2 }, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, achievements: [] },
+    state: { amounts: { wood: 2 }, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [] },
   });
 });
 
 test("loadSave starts a new game for null and invalid text", () => {
-  expect(loadSave(null)).toEqual({ state: { amounts: {}, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, achievements: [] }, savedAt: null });
-  expect(loadSave("not json")).toEqual({ state: { amounts: {}, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, achievements: [] }, savedAt: null });
+  expect(loadSave(null)).toEqual({ state: { amounts: {}, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [] }, savedAt: null });
+  expect(loadSave("not json")).toEqual({ state: { amounts: {}, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [] }, savedAt: null });
+});
+
+test.each([
+  ["known event", { id: "rain", secondsLeft: 4 }, { id: "rain", secondsLeft: 4 }],
+  ["unknown event", { id: "storm", secondsLeft: 4 }, null],
+  ["out of range", { id: "rain", secondsLeft: 61 }, null],
+  ["fractional timer", { id: "rain", secondsLeft: 1.5 }, null],
+  ["missing event", undefined, null],
+] as const)("decodeSave validates %s", (_name, event, expected) => {
+  const state = event === undefined ? {} : { event };
+  const decoded = decodeSave(JSON.stringify({ version: 2, state }));
+  expect(decoded.kind === "loaded" ? decoded.state.event : "invalid").toEqual(expected);
 });
