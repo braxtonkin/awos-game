@@ -66,6 +66,12 @@ test("zoneDetails lists the Deep caves cost, requirement, and resources", () => 
   ]);
 });
 
+test("zoneDetails lists the Nether cost, requirement, and resources", () => {
+  expect(zoneDetails(zones[3]!)).toEqual([
+    "Cost: 6K Iron ingot, 1.5K Obsidian, 1K Gold ingot", "Needs: Diamond pickaxe", "Mines: Netherrack, Nether quartz, Ancient debris, Blaze rod, Ender pearl",
+  ]);
+});
+
 test("recipeDetails shows the Torch and Iron ingot inputs and outputs", () => {
   expect(recipeDetails(recipes[0])).toEqual(["Uses: 1 Wood, 1 Coal", "Makes: 4 Torch"]);
   expect(recipeDetails(recipes[1])).toEqual(["Uses: 1 Iron ore, 1 Coal", "Makes: 1 Iron ingot"]);
