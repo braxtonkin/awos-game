@@ -20,8 +20,12 @@ const migrations: readonly Migration[] = [
   (save) => ({ ...save, version: 2 }),
 ];
 
-export function serialize(state: GameState, savedAt: number): string {
+export function serialize(state: Pick<GameState, "amounts" | "owned">, savedAt: number): string {
   return JSON.stringify({ version: currentSaveVersion, savedAt, state });
+}
+
+export function deserialize(text: string | null): GameState {
+  return loadSave(text).state;
 }
 
 export function decodeSave(text: string): DecodedSave {
