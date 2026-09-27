@@ -7,7 +7,7 @@ import type { Section } from "./section.ts";
 export const toolsSection: Section = {
   id: "tools",
   title: "Tools",
-  build({ root, state, update }) {
+  build({ root, state, update, settings }) {
     const document = root.ownerDocument;
     const power = document.createElement("p");
     power.className = "click-power";
@@ -21,7 +21,7 @@ export const toolsSection: Section = {
       const name = document.createElement("span");
       name.className = "name";
       name.textContent = tool.name;
-      row.append(name, ...toolDetails(tool).map((line) => {
+      row.append(name, ...toolDetails(tool, settings().numbers).map((line) => {
         const detail = document.createElement("span");
         detail.textContent = line;
         return detail;

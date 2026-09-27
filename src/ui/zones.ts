@@ -6,7 +6,7 @@ import type { Section } from "./section.ts";
 export const zonesSection: Section = {
   id: "zones",
   title: "Zones",
-  build({ root, state, update }) {
+  build({ root, state, update, settings }) {
     const document = root.ownerDocument;
     const list = document.createElement("ul");
     list.id = "zones";
@@ -19,7 +19,7 @@ export const zonesSection: Section = {
       const name = document.createElement("span");
       name.className = "name";
       name.textContent = zone.name;
-      details.append(name, ...zoneDetails(zone).map((line) => {
+      details.append(name, ...zoneDetails(zone, settings().numbers).map((line) => {
         const detail = document.createElement("span");
         detail.textContent = line;
         return detail;

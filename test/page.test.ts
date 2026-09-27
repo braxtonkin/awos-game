@@ -79,7 +79,7 @@ test("one page tick produces wood from two wooden axes", () => {
 test("sections appear in page order", () => {
   openPage();
   expect([...document.querySelectorAll("main h2")].map((heading) => heading.textContent)).toEqual([
-    "Event", "Resources", "Tools", "Zones", "Upgrades", "Crafting", "Stats", "Achievements", "Save", "Game",
+    "Event", "Resources", "Tools", "Zones", "Upgrades", "Crafting", "Stats", "Achievements", "Save", "Settings", "Game",
   ]);
 });
 

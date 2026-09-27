@@ -6,7 +6,7 @@ import type { Section } from "./section.ts";
 export const resourcesSection: Section = {
   id: "resources",
   title: "Resources",
-  build({ root, state, update }) {
+  build({ root, state, update, settings }) {
     const document = root.ownerDocument;
     const list = document.createElement("ul");
     list.id = "resources";
@@ -29,7 +29,7 @@ export const resourcesSection: Section = {
       list.append(row);
       return () => {
         row.hidden = !isDiscovered(state(), resource.id);
-        amount.textContent = formatAmount(amountOf(state(), resource.id));
+        amount.textContent = formatAmount(amountOf(state(), resource.id), settings().numbers);
         const button = row.querySelector("button");
         if (button) {
           button.textContent = canMine(state(), resource.id) ? "Mine" : "Locked";

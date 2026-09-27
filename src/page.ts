@@ -5,6 +5,8 @@ import { sections } from "./ui/sections.ts";
 import { achievements } from "./achievements.ts";
 import { tabs } from "./ui/tabs.ts";
 import type { Section } from "./ui/section.ts";
+import { parseSettings, settingsKey } from "./settings.ts";
+import type { Settings } from "./settings.ts";
 
 export type PageEnv = {
   storage: Pick<Storage, "getItem" | "setItem">;
@@ -20,6 +22,7 @@ const saveKey = "awos-game:save";
 export function mount(root: HTMLElement, env: PageEnv): Page {
   const loaded = loadSave(env.storage.getItem(saveKey));
   let state = catchUp(loaded.state, loaded.savedAt === null ? 0 : Math.max(0, env.now() - loaded.savedAt));
+  let settings = parseSettings(env.storage.getItem(settingsKey));
   const redraws: (() => void)[] = [];
   let toast: HTMLParagraphElement | null = null;
   let toastTicks = 0;
@@ -73,6 +76,18 @@ export function mount(root: HTMLElement, env: PageEnv): Page {
     redraws.forEach((redraw) => redraw());
     env.storage.setItem(saveKey, serialize(state, env.now()));
   };
+  const updateSettings = (next: Settings): void => {
+    settings = next;
+    env.storage.setItem(settingsKey, JSON.stringify(settings));
+    applyTheme();
+    redraws.forEach((redraw) => redraw());
+  };
+  const applyTheme = (): void => {
+    const html = root.ownerDocument.documentElement;
+    if (settings.theme === "system") html.removeAttribute("data-theme");
+    else html.setAttribute("data-theme", settings.theme);
+  };
+  applyTheme();
   for (const section of sections) {
     const wrapper = root.ownerDocument.createElement("section");
     wrapper.dataset.section = section.id;
@@ -81,7 +96,7 @@ export function mount(root: HTMLElement, env: PageEnv): Page {
     heading.textContent = section.title;
     wrapper.append(heading);
     root.append(wrapper);
-    redraws.push(section.build({ root: wrapper, state: () => state, update, env }));
+    redraws.push(section.build({ root: wrapper, state: () => state, update, settings: () => settings, updateSettings, env }));
   }
   renderTabs();
   update(state);
