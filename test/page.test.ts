@@ -31,7 +31,7 @@ test("one page tick produces wood from two wooden axes", () => {
 test("sections appear in page order", () => {
   openPage();
   expect([...document.querySelectorAll("main h2")].map((heading) => heading.textContent)).toEqual([
-    "Resources", "Upgrades", "Game",
+    "Resources", "Upgrades", "Save", "Game",
   ]);
 });
 
