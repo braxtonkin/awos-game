@@ -9,6 +9,7 @@ export type Condition =
   | { readonly kind: "clicks"; readonly atLeast: number }
   | { readonly kind: "worlds"; readonly atLeast: number }
   | { readonly kind: "emeralds"; readonly atLeast: number }
+  | { readonly kind: "perks"; readonly atLeast: number }
   | { readonly kind: "dragonDefeated" };
 
 export const achievements = [
@@ -42,6 +43,13 @@ export const achievements = [
   { id: "emeraldHoard", name: "Emerald hoard", description: "Hold 25 Emeralds", when: { kind: "emeralds", atLeast: 25 } },
   { id: "lavaLord", name: "Lava lord", description: "Own 10 Lava pumps", when: { kind: "owned", id: "lavaPump", atLeast: 10 } },
   { id: "tenMillion", name: "Ten million", description: "Gather 10,000,000 resources in one world", when: { kind: "gatheredTotal", atLeast: 10000000 } },
+  { id: "beyondThePortal", name: "Beyond the portal", description: "Reach the End", when: { kind: "owned", id: "end", atLeast: 1 } },
+  { id: "twelveEyes", name: "Twelve eyes", description: "Gather 12 Eyes of ender", when: { kind: "gathered", resource: "eyeOfEnder", atLeast: 12 } },
+  { id: "endStoneMason", name: "End stone mason", description: "Gather 10,000 End stone", when: { kind: "gathered", resource: "endStone", atLeast: 10000 } },
+  { id: "perkCollector", name: "Perk collector", description: "Own 3 perks", when: { kind: "perks", atLeast: 3 } },
+  { id: "fullFactory", name: "Full factory", description: "Own 250 machines", when: { kind: "machines", atLeast: 250 } },
+  { id: "farmer", name: "Farmer", description: "Own 10 Enderman farms", when: { kind: "owned", id: "endermanFarm", atLeast: 10 } },
+  { id: "hundredMillion", name: "A hundred million", description: "Gather 100,000,000 resources in one world", when: { kind: "gatheredTotal", atLeast: 100000000 } },
   { id: "dragonSlayer", name: "Dragon slayer", description: "Defeat the Ender Dragon", when: { kind: "dragonDefeated" } },
 ] as const satisfies readonly { id: string; name: string; description: string; when: Condition }[];
 

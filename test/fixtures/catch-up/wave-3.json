@@ -71,7 +71,8 @@
   "lifetime": {
     "clicks": 3732,
     "ticks": 1866,
-    "gathered": 175246.74000000217
+    "gathered": 175246.74000000217,
+    "records": {}
   },
   "event": null,
   "achievements": [

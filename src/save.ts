@@ -101,6 +101,7 @@ function parseState(value: SaveRecord): GameState {
       clicks: keepCounts(value.lifetime, ["clicks"] as const).clicks ?? 0,
       ticks: keepCounts(value.lifetime, ["ticks"] as const).ticks ?? 0,
       gathered: keepCounts(value.lifetime, ["gathered"] as const).gathered ?? 0,
+      records: keepCounts(isRecord(value.lifetime) ? value.lifetime.records : undefined, zones.map((zone) => zone.id)),
     },
     event,
     achievements: keepAchievementIds(value.achievements),

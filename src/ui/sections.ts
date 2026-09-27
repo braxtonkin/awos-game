@@ -12,8 +12,11 @@ import { achievementsSection } from "./achievements.ts";
 import { newWorldSection } from "./new-world.ts";
 import { settingsSection } from "./settings.ts";
 import { dragonSection } from "./dragon.ts";
+import { hintSection } from "./hint.ts";
+import { helpSection } from "./help.ts";
 
 export const sections: readonly Section[] = [
+  hintSection,
   eventSection,
   resourcesSection,
   toolsSection,
@@ -26,5 +29,6 @@ export const sections: readonly Section[] = [
   newWorldSection,
   saveSection,
   settingsSection,
+  helpSection,
   resetSection,
 ];

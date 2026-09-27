@@ -1,5 +1,6 @@
 import { formatAmount, formatDuration } from "../format.ts";
 import { resources } from "../resources.ts";
+import { zones } from "../zones.ts";
 import type { Section } from "./section.ts";
 
 export const statsSection: Section = {
@@ -27,6 +28,10 @@ export const statsSection: Section = {
         `Time in all worlds: ${formatDuration(lifetime.ticks + current.ticks)}`,
         `Clicks in all worlds: ${lifetime.clicks + current.clicks}`,
         `Gathered in all worlds: ${formatAmount(lifetime.gathered + gathered, settings().numbers)}`,
+        ...zones.flatMap((zone) => {
+          const record = lifetime.records[zone.id];
+          return record === undefined ? [] : [`Fastest to ${zone.name}: ${formatDuration(record)}`];
+        }),
       ];
       for (const line of lines) {
         const item = root.ownerDocument.createElement("li");

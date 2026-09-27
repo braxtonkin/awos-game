@@ -1,6 +1,6 @@
 export const tabs = [
-  { id: "mine", label: "Mine", sections: ["event", "resources", "tools", "zones", "dragon"] },
+  { id: "mine", label: "Mine", sections: ["hint", "event", "resources", "tools", "zones", "dragon"] },
   { id: "build", label: "Build", sections: ["upgrades", "crafting"] },
   { id: "progress", label: "Progress", sections: ["achievements", "stats"] },
-  { id: "more", label: "More", sections: ["newWorld", "settings", "save", "reset"] },
+  { id: "more", label: "More", sections: ["newWorld", "settings", "help", "save", "reset"] },
 ] as const;

@@ -5,7 +5,36 @@ import { loadSave } from "../src/save.ts";
 import { stateWith } from "./state.ts";
 
 test("achievement catalog has the required order", () => {
-  expect(achievements.map(({ id }) => id)).toEqual(["firstLog", "lumberjack", "stoneTools", "intoTheDark", "ironWorks", "ironTools", "torchbearer", "busyHands", "factory", "stockpile", "deeper", "shiny", "diamondTools", "goldRush", "clickStorm", "machinist", "smeltery", "torchlight", "obsidianWall", "millionaire", "tooHot", "netheriteTools", "blazing", "pearlDiver", "ancientHistory", "freshStart", "worldHopper", "emeraldHoard", "lavaLord", "tenMillion", "dragonSlayer"]);
+  expect(achievements.map(({ id }) => id)).toEqual(["firstLog", "lumberjack", "stoneTools", "intoTheDark", "ironWorks", "ironTools", "torchbearer", "busyHands", "factory", "stockpile", "deeper", "shiny", "diamondTools", "goldRush", "clickStorm", "machinist", "smeltery", "torchlight", "obsidianWall", "millionaire", "tooHot", "netheriteTools", "blazing", "pearlDiver", "ancientHistory", "freshStart", "worldHopper", "emeraldHoard", "lavaLord", "tenMillion", "beyondThePortal", "twelveEyes", "endStoneMason", "perkCollector", "fullFactory", "farmer", "hundredMillion", "dragonSlayer"]);
+});
+
+test("reaching the End earns beyondThePortal", () => {
+  expect(earnAchievements(stateWith({ owned: { end: 1 } })).achievements).toEqual(["beyondThePortal"]);
+});
+
+test("gathering 12 Eyes of ender earns twelveEyes", () => {
+  expect(earnAchievements(stateWith({ stats: { clicks: 0, ticks: 0, gathered: { eyeOfEnder: 12 } } })).achievements).toEqual(["twelveEyes"]);
+});
+
+test("gathering 10,000 End stone earns endStoneMason", () => {
+  expect(earnAchievements(stateWith({ stats: { clicks: 0, ticks: 0, gathered: { endStone: 10000 } } })).achievements).toEqual(["endStoneMason"]);
+});
+
+test("owning three perks earns perkCollector", () => {
+  expect(earnAchievements(stateWith({ prestige: { ...initialState.prestige, perks: ["stoneStart", "lucky", "nightShift"] } })).achievements).toEqual(["perkCollector"]);
+});
+
+test("owning 250 machines earns fullFactory", () => {
+  expect(earnAchievements(stateWith({ owned: { woodenAxe: 250 } })).achievements).toContain("fullFactory");
+});
+
+test("owning 10 Enderman farms earns farmer", () => {
+  expect(earnAchievements(stateWith({ owned: { endermanFarm: 10 } })).achievements).toEqual(["farmer"]);
+});
+
+test("gathering 100,000,000 resources earns hundredMillion", () => {
+  expect(earnAchievements(stateWith({ stats: { clicks: 0, ticks: 0, gathered: { wood: 100000000 } } })).achievements).toContain("hundredMillion");
+  expect(achievements.map(({ id }) => id)).toEqual(["firstLog", "lumberjack", "stoneTools", "intoTheDark", "ironWorks", "ironTools", "torchbearer", "busyHands", "factory", "stockpile", "deeper", "shiny", "diamondTools", "goldRush", "clickStorm", "machinist", "smeltery", "torchlight", "obsidianWall", "millionaire", "tooHot", "netheriteTools", "blazing", "pearlDiver", "ancientHistory", "freshStart", "worldHopper", "emeraldHoard", "lavaLord", "tenMillion", "beyondThePortal", "twelveEyes", "endStoneMason", "perkCollector", "fullFactory", "farmer", "hundredMillion", "dragonSlayer"]);
 });
 
 test("mining wood earns firstLog only once", () => {
