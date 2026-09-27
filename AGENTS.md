@@ -11,4 +11,5 @@ Agents extend this game through small tickets, and several branches often change
 - If two branches both append to the same array or test file, resolve the merge conflict by keeping main's additions first, then yours, each once.
 - Add no runtime dependencies.
 - Write no code comments, except one that explains a why the code cannot show.
+- Each page section lives in its own file under src/ui/ and is listed once in src/ui/sections.ts. Page code reads the clock, storage, and dialogs only through PageEnv. Every UI change adds a DOM test that uses openPage from test/page.ts.
 - A ticket that adds something to buy adds the goals and bounds it names to sim/script.ts and sim/bounds.ts. npm test fails when a goal becomes unreachable or a bound is missed.
