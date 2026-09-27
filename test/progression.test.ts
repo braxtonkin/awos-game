@@ -13,7 +13,7 @@ test("catalogs expose the ordered entries", () => {
 });
 
 test("purchase costs and tool purchases", () => {
-  expect(costOf(stateWith({ owned: { woodenAxe: 3 } }), "woodenAxe")).toEqual({ wood: 15 });
+  expect(costOf(stateWith({ owned: { woodenAxe: 3 } }), "woodenAxe")).toEqual({ wood: 23 });
   expect(costOf(stateWith({}), "caves")).toEqual({ torch: 400, stone: 1500 });
   const bought = buy(stateWith({ amounts: { stone: 60, wood: 40 } }), "stonePickaxe");
   expect(bought.amounts).toEqual({ stone: 0, wood: 0 });

@@ -1,4 +1,4 @@
-import { buy, canBuy, ownedCount } from "../game.ts";
+import { buy, canBuy, costOf, ownedCount } from "../game.ts";
 import { upgradeDetails } from "../format.ts";
 import { upgrades } from "../upgrades.ts";
 import type { Section } from "./section.ts";
@@ -20,17 +20,22 @@ export const upgradesSection: Section = {
       name.className = "name";
       name.textContent = upgrade.name;
       const owned = document.createElement("span");
-      details.append(name, ...upgradeDetails(upgrade).map((line) => {
+      const detailLines = upgradeDetails(upgrade, costOf(state(), upgrade.id)).map((line) => {
         const text = document.createElement("span");
         text.textContent = line;
         return text;
-      }), owned);
+      });
+      details.append(name, ...detailLines, owned);
       const button = document.createElement("button");
       button.textContent = "Buy";
       button.addEventListener("click", () => update(buy(state(), upgrade.id)));
       row.append(details, button);
       list.append(row);
       return () => {
+        upgradeDetails(upgrade, costOf(state(), upgrade.id)).forEach((line, index) => {
+          const detail = detailLines[index];
+          if (detail !== undefined) detail.textContent = line;
+        });
         owned.textContent = `Owned: ${ownedCount(state(), upgrade.id)}`;
         button.disabled = !canBuy(state(), upgrade.id);
       };
