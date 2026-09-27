@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { buy, canBuy, catchUp, costOf, mine, tick } from "../src/game.ts";
+import { buy, canBuy, catchUp, costOf, initialState, mine, tick } from "../src/game.ts";
 import { stateWith } from "./state.ts";
 
 test("mining dirt in a new game gives 1 dirt", () => {
@@ -10,8 +10,12 @@ test("mining wood adds 1 wood and leaves the dirt as it was", () => {
   expect(mine(stateWith({ amounts: { dirt: 4, wood: 2 } }), "wood").amounts).toEqual({ dirt: 4, wood: 3 });
 });
 
-test("mining iron ore in a new game gives 1 iron ore", () => {
-  expect(mine(stateWith({}), "ironOre").amounts).toEqual({ ironOre: 1 });
+test("mining iron ore in a new game changes nothing", () => {
+  expect(mine(initialState, "ironOre")).toBe(initialState);
+});
+
+test("mining iron ore in the Caves with a stone pickaxe gives 2 iron ore", () => {
+  expect(mine(stateWith({ owned: { stonePickaxe: 1, caves: 1 } }), "ironOre").amounts).toEqual({ ironOre: 2 });
 });
 
 test("mining coal in a new game gives 1 coal", () => {
