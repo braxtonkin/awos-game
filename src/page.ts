@@ -40,10 +40,21 @@ export function mount(root: HTMLElement, env: PageEnv): Page {
     const button = root.ownerDocument.createElement("button");
     button.type = "button";
     button.setAttribute("role", "tab");
+    const controlledSection = tabSections.get(tab.id)?.[0];
+    if (controlledSection !== undefined) button.setAttribute("aria-controls", `panel-${controlledSection.id}`);
     button.textContent = tab.label;
     button.addEventListener("click", () => {
       selectedTab = tab.id;
       renderTabs();
+    });
+    button.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+      event.preventDefault();
+      const current = tabs.findIndex((item) => item.id === tab.id);
+      const delta = event.key === "ArrowRight" ? 1 : -1;
+      selectedTab = tabs[(current + delta + tabs.length) % tabs.length]!.id;
+      renderTabs();
+      tabButtons.find((item) => item.id === selectedTab)?.button.focus();
     });
     nav.append(button);
     return { id: tab.id, button };
@@ -90,6 +101,8 @@ export function mount(root: HTMLElement, env: PageEnv): Page {
   applyTheme();
   for (const section of sections) {
     const wrapper = root.ownerDocument.createElement("section");
+    wrapper.id = `panel-${section.id}`;
+    wrapper.setAttribute("role", "tabpanel");
     wrapper.dataset.section = section.id;
     sectionElements.set(section.id, wrapper);
     const heading = root.ownerDocument.createElement("h2");

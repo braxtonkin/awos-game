@@ -2,6 +2,7 @@ import { buy, canBuy, ownedCount, zoneReached } from "../game.ts";
 import { zoneDetails } from "../format.ts";
 import { zones } from "../zones.ts";
 import type { Section } from "./section.ts";
+import { rowButton } from "./row-button.ts";
 
 export const zonesSection: Section = {
   id: "zones",
@@ -24,7 +25,7 @@ export const zonesSection: Section = {
         detail.textContent = line;
         return detail;
       }));
-      const button = document.createElement("button");
+      const button = rowButton(document, "Reached", zone.name);
       button.addEventListener("click", () => update(buy(state(), zone.id)));
       row.append(details, button);
       list.append(row);

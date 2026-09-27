@@ -3,6 +3,7 @@ import { recipeDetails } from "../format.ts";
 import { recipes } from "../recipes.ts";
 import type { ResourceId } from "../resources.ts";
 import type { Section } from "./section.ts";
+import { rowButton } from "./row-button.ts";
 
 export const craftingSection: Section = {
   id: "crafting",
@@ -18,8 +19,7 @@ export const craftingSection: Section = {
       const name = document.createElement("span");
       name.className = "name";
       name.textContent = recipe.name;
-      const button = document.createElement("button");
-      button.textContent = "Craft";
+      const button = rowButton(document, "Craft", recipe.name);
       button.addEventListener("click", () => update(craft(state(), recipe.id)));
       row.append(name, ...recipeDetails(recipe, settings().numbers).map((line) => {
         const detail = document.createElement("span");

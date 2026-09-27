@@ -2,8 +2,8 @@ import { expect, test } from "vitest";
 import { decodeSave, loadSave, serialize } from "../src/save.ts";
 
 test("serialize writes a version 2 save with its timestamp", () => {
-  expect(serialize({ amounts: { dirt: 3 }, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } }, 1234)).toBe(
-    '{"version":2,"savedAt":1234,"state":{"amounts":{"dirt":3},"owned":{},"paused":[],"stats":{"clicks":0,"ticks":0,"gathered":{}},"event":null,"achievements":[],"prestige":{"emeralds":0,"worlds":0,"perks":[]}}}',
+  expect(serialize({ amounts: { dirt: 3 }, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, lifetime: { clicks: 0, ticks: 0, gathered: 0 }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } }, 1234)).toBe(
+    '{"version":2,"savedAt":1234,"state":{"amounts":{"dirt":3},"owned":{},"paused":[],"stats":{"clicks":0,"ticks":0,"gathered":{}},"lifetime":{"clicks":0,"ticks":0,"gathered":0},"event":null,"achievements":[],"prestige":{"emeralds":0,"worlds":0,"perks":[]}}}',
   );
 });
 
@@ -18,7 +18,7 @@ test.each([
       kind: "loaded",
       version,
       savedAt,
-      state: { amounts: { dirt: 12, wood: 30 }, owned: { woodenAxe: 2 }, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } },
+      state: { amounts: { dirt: 12, wood: 30 }, owned: { woodenAxe: 2 }, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, lifetime: { clicks: 0, ticks: 0, gathered: 0 }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } },
     });
   },
 );
@@ -37,7 +37,7 @@ test("decodeSave drops unknown ids, negative values, and non-numbers", () => {
     kind: "loaded",
     version: 2,
     savedAt: 5,
-    state: { amounts: { wood: 2 }, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } },
+    state: { amounts: { wood: 2 }, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, lifetime: { clicks: 0, ticks: 0, gathered: 0 }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } },
   });
 });
 
@@ -46,13 +46,13 @@ test("decodeSave preserves initial values for missing fields", () => {
     kind: "loaded",
     version: 2,
     savedAt: 5,
-    state: { amounts: { wood: 2 }, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } },
+    state: { amounts: { wood: 2 }, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, lifetime: { clicks: 0, ticks: 0, gathered: 0 }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } },
   });
 });
 
 test("loadSave starts a new game for null and invalid text", () => {
-  expect(loadSave(null)).toEqual({ state: { amounts: {}, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } }, savedAt: null });
-  expect(loadSave("not json")).toEqual({ state: { amounts: {}, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } }, savedAt: null });
+  expect(loadSave(null)).toEqual({ state: { amounts: {}, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, lifetime: { clicks: 0, ticks: 0, gathered: 0 }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } }, savedAt: null });
+  expect(loadSave("not json")).toEqual({ state: { amounts: {}, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, lifetime: { clicks: 0, ticks: 0, gathered: 0 }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } }, savedAt: null });
 });
 
 test.each([

@@ -12,6 +12,7 @@ Agents extend this game through small tickets, and several branches often change
 - Add no runtime dependencies.
 - Write no code comments, except one that explains a why the code cannot show.
 - Each page section lives in its own file under src/ui/ and is listed once in src/ui/sections.ts. Page code reads the clock, storage, and dialogs only through PageEnv. Every UI change adds a DOM test that uses openPage from test/page.ts.
+- Every button inside a row is made with rowButton from src/ui/row-button.ts.
 - A new section adds its id to one tab in src/ui/tabs.ts. A section that no tab lists shows under More.
 - Build every test state with stateWith from test/state.ts, and assert only the fields the test checks.
 - Put each feature's tests in their own file, test/<feature>.test.ts, so parallel branches add files instead of editing one.

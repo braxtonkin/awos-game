@@ -51,4 +51,5 @@ export const script: readonly Goal[] = [
   { order: 480, own: "nether", count: 1 },
   { order: 485, newWorld: true },
   { order: 520, own: "netheritePickaxe", count: 1 },
+  { order: 550, own: "end", count: 1 },
 ];

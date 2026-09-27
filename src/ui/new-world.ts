@@ -1,6 +1,7 @@
 import { buyPerk, canStartNewWorld, emeraldsForNewWorld, startNewWorld } from "../game.ts";
 import { perks } from "../perks.ts";
 import type { Section } from "./section.ts";
+import { rowButton } from "./row-button.ts";
 
 export const newWorldSection: Section = {
   id: "newWorld",
@@ -16,7 +17,7 @@ export const newWorldSection: Section = {
       name.className = "name";
       const description = root.ownerDocument.createElement("span");
       const cost = root.ownerDocument.createElement("span");
-      const buy = root.ownerDocument.createElement("button");
+      const buy = rowButton(root.ownerDocument, "Buy", perk.name);
       buy.addEventListener("click", () => update(buyPerk(state(), perk.id)));
       row.append(name, description, cost, buy);
       list.append(row);
@@ -39,6 +40,7 @@ export const newWorldSection: Section = {
         row.description.textContent = row.perk.description;
         row.cost.textContent = `Cost: ${row.perk.cost} Emeralds`;
         row.buy.textContent = current.prestige.perks.includes(row.perk.id) ? "Owned" : "Buy";
+        row.buy.setAttribute("aria-label", `${row.buy.textContent} ${row.perk.name}`);
         row.buy.disabled = current.prestige.perks.includes(row.perk.id) || current.prestige.emeralds < row.perk.cost;
       }
     };

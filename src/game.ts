@@ -21,6 +21,7 @@ export type GameState = {
   readonly owned: Partial<Record<PurchaseId, number>>;
   readonly paused: readonly UpgradeId[];
   readonly stats: { readonly clicks: number; readonly ticks: number; readonly gathered: Amounts };
+  readonly lifetime: { readonly clicks: number; readonly ticks: number; readonly gathered: number };
   readonly event: { readonly id: EventId; readonly secondsLeft: number } | null;
   readonly achievements: readonly AchievementId[];
   readonly prestige: { readonly emeralds: number; readonly worlds: number; readonly perks: readonly PerkId[] };
@@ -28,7 +29,7 @@ export type GameState = {
 
 export const tickMs = 1000;
 export const maxOfflineMs = 8 * 60 * 60 * 1000;
-export const initialState: GameState = { amounts: {}, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } };
+export const initialState: GameState = { amounts: {}, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, lifetime: { clicks: 0, ticks: 0, gathered: 0 }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } };
 
 export function buyPerk(state: GameState, id: PerkId): GameState {
   const perk = perks.find((candidate) => candidate.id === id);
@@ -46,7 +47,7 @@ export function canStartNewWorld(state: GameState): boolean { return emeraldsFor
 export function startNewWorld(state: GameState): GameState {
   if (!canStartNewWorld(state)) return state;
   const owned = perks.filter((perk) => state.prestige.perks.includes(perk.id) && perk.effect.kind === "startWith").reduce<Partial<Record<PurchaseId, number>>>((counts, perk) => perk.effect.kind === "startWith" ? { ...counts, ...Object.fromEntries(Object.entries(perk.effect.owned).map(([id, count]) => [id, (counts[id as PurchaseId] ?? 0) + (count ?? 0)])) } : counts, {});
-  return { ...initialState, owned, achievements: state.achievements, prestige: { emeralds: state.prestige.emeralds + emeraldsForNewWorld(state), worlds: state.prestige.worlds + 1, perks: state.prestige.perks } };
+  return { ...initialState, owned, achievements: state.achievements, lifetime: { clicks: state.lifetime.clicks + state.stats.clicks, ticks: state.lifetime.ticks + state.stats.ticks, gathered: state.lifetime.gathered + resources.reduce((sum, resource) => sum + (state.stats.gathered[resource.id] ?? 0), 0) }, prestige: { emeralds: state.prestige.emeralds + emeraldsForNewWorld(state), worlds: state.prestige.worlds + 1, perks: state.prestige.perks } };
 }
 
 export function togglePause(state: GameState, id: UpgradeId): GameState {
@@ -60,6 +61,8 @@ export function meets(state: GameState, condition: Condition): boolean {
     case "owned": return ownedCount(state, condition.id) >= condition.atLeast;
     case "machines": return upgrades.reduce((sum, upgrade) => sum + ownedCount(state, upgrade.id), 0) >= condition.atLeast;
     case "clicks": return state.stats.clicks >= condition.atLeast;
+    case "worlds": return state.prestige.worlds >= condition.atLeast;
+    case "emeralds": return state.prestige.emeralds >= condition.atLeast;
     default: return assertNever(condition);
   }
 }
