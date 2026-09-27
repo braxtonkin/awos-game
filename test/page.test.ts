@@ -31,7 +31,14 @@ test("one page tick produces wood from two wooden axes", () => {
 test("sections appear in page order", () => {
   openPage();
   expect([...document.querySelectorAll("main h2")].map((heading) => heading.textContent)).toEqual([
-    "Resources", "Upgrades", "Save", "Game",
+    "Resources", "Tools", "Upgrades", "Save", "Game",
+  ]);
+});
+
+test("Quarry and Coal mine follow Furnace in the upgrades list", () => {
+  openPage();
+  expect([...document.querySelectorAll("[data-upgrade] .name")].map((name) => name.textContent)).toEqual([
+    "Wooden pickaxe", "Wooden axe", "Furnace", "Quarry", "Coal mine",
   ]);
 });
 
