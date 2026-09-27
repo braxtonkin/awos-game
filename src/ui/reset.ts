@@ -2,7 +2,7 @@ import { initialState } from "../game.ts";
 import type { Section } from "./section.ts";
 
 export const resetSection: Section = {
-  id: "game",
+  id: "reset",
   title: "Game",
   build({ root, update, env }) {
     const button = root.ownerDocument.createElement("button");

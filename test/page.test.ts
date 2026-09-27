@@ -118,14 +118,14 @@ test("stats update after mining three times", () => {
 test("declining reset keeps progress", () => {
   openPage(undefined, { confirm: () => false });
   document.querySelector<HTMLButtonElement>('[data-resource="wood"] button')?.click();
-  document.querySelector<HTMLButtonElement>('[data-section="game"] button')?.click();
+  document.querySelector<HTMLButtonElement>('[data-section="reset"] button')?.click();
   expect(document.querySelector('[data-resource="wood"] .amount')?.textContent).toBe("1");
 });
 
 test("confirming reset clears resources and upgrades", () => {
   openPage();
   document.querySelector<HTMLButtonElement>('[data-resource="wood"] button')?.click();
-  document.querySelector<HTMLButtonElement>('[data-section="game"] button')?.click();
+  document.querySelector<HTMLButtonElement>('[data-section="reset"] button')?.click();
   expect(document.querySelector('[data-resource="wood"] .amount')?.textContent).toBe("0");
   expect([...document.querySelectorAll('[data-upgrade]')].every((row) => row.textContent?.includes("Owned: 0"))).toBe(true);
 });

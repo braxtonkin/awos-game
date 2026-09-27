@@ -26,7 +26,37 @@
       main {
         max-width: 36rem;
         margin: 0 auto;
-        padding: 1rem;
+        padding: 1rem 1rem 6rem;
+      }
+      nav[role="tablist"] {
+        position: fixed;
+        z-index: 1;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        justify-content: center;
+        gap: 0.25rem;
+        padding: 0.5rem;
+        background: var(--card);
+        border-top: 1px solid var(--line);
+      }
+      nav[role="tablist"] button {
+        flex: 1;
+        min-width: 0;
+      }
+      nav[role="tablist"] button[aria-selected="true"] {
+        background: var(--dirt-hover);
+      }
+      @media (min-width: 40rem) {
+        main { padding-bottom: 1rem; }
+        nav[role="tablist"] {
+          position: static;
+          max-width: 36rem;
+          margin: 0 auto;
+          border: 0;
+          background: transparent;
+        }
       }
       h2 {
         font-size: 1rem;
