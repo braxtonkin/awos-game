@@ -4,6 +4,7 @@ Agents extend this game through small tickets, and several branches often change
 
 - Before you finish, run `npm run typecheck`, `npm test`, and `npm run build`. All three must pass.
 - Add a new resource to the end of the `resources` array in `src/resources.ts`. Add a new upgrade to the end of the `upgrades` array in `src/upgrades.ts`.
+- Append new tools, zones, and recipes to the end of their arrays in src/tools.ts, src/zones.ts, and src/recipes.ts. Their ids are save keys too.
 - Treat every resource and upgrade id as a save key. Write it in camelCase, and never rename one.
 - Keep game rules in `src/game.ts` and out of `src/main.ts`. Build the text for amounts and upgrades in `src/format.ts`. Both files hold pure functions. `src/main.ts` only builds the page, runs the tick loop, and saves.
 - Add a test in `test/` for every rule change and every text change. Call the function and compare the result with a literal expected value.
