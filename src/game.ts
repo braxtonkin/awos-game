@@ -17,6 +17,7 @@ export type PurchaseId = UpgradeId | ToolId | ZoneId;
 export type GameState = {
   readonly amounts: Amounts;
   readonly owned: Partial<Record<PurchaseId, number>>;
+  readonly paused: readonly UpgradeId[];
   readonly stats: { readonly clicks: number; readonly ticks: number; readonly gathered: Amounts };
   readonly event: { readonly id: EventId; readonly secondsLeft: number } | null;
   readonly achievements: readonly AchievementId[];
@@ -25,7 +26,7 @@ export type GameState = {
 
 export const tickMs = 1000;
 export const maxOfflineMs = 8 * 60 * 60 * 1000;
-export const initialState: GameState = { amounts: {}, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0 } };
+export const initialState: GameState = { amounts: {}, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0 } };
 
 export function emeraldsForNewWorld(state: GameState): number {
   const total = resources.reduce((sum, resource) => sum + (state.stats.gathered[resource.id] ?? 0), 0);
@@ -37,6 +38,10 @@ export function canStartNewWorld(state: GameState): boolean { return emeraldsFor
 export function startNewWorld(state: GameState): GameState {
   if (!canStartNewWorld(state)) return state;
   return { ...initialState, achievements: state.achievements, prestige: { emeralds: state.prestige.emeralds + emeraldsForNewWorld(state), worlds: state.prestige.worlds + 1 } };
+}
+
+export function togglePause(state: GameState, id: UpgradeId): GameState {
+  return { ...state, paused: state.paused.includes(id) ? state.paused.filter((pausedId) => pausedId !== id) : [...state.paused, id] };
 }
 
 export function meets(state: GameState, condition: Condition): boolean {
@@ -63,9 +68,35 @@ export function rollEvent(state: GameState, chance: number, pick: number): GameS
   return { ...state, event: { id: event.id, secondsLeft: event.seconds } };
 }
 
+export function resolveEvent(state: GameState): GameState {
+  if (state.event === null) return state;
+  const definition = events.find((candidate) => candidate.id === state.event?.id);
+  if (definition === undefined) return state;
+  switch (definition.effect.kind) {
+    case "chest": {
+      const seconds = definition.effect.seconds;
+      const output = upgrades.filter((upgrade) => upgrade.uses === undefined).reduce<Amounts>((totals, upgrade) => {
+        const byResource = resources.reduce<Amounts>((amounts, resource) => {
+          const amount = (upgrade.perTick as Amounts)[resource.id];
+          return amount === undefined ? amounts : { ...amounts, [resource.id]: amount * ownedCount(state, upgrade.id) * productionMultiplier(state, resource.id) * seconds };
+        }, {});
+        return mergeAmounts(totals, byResource);
+      }, {});
+      return { ...addAmounts(state, Object.keys(output).length === 0 ? { wood: 50 } : output, 1), event: null };
+    }
+    case "creeper": return { ...state, event: null };
+    case "trade": return affords(state, definition.effect.give) ? { ...addAmounts(addAmounts(state, definition.effect.give, -1), definition.effect.get, 1), event: null } : state;
+    case "production":
+    case "clickPower": return state;
+    default: return assertNever(definition.effect);
+  }
+}
+
 export function amountOf(state: GameState, resourceId: ResourceId): number {
   return state.amounts[resourceId] ?? 0;
 }
+
+export function canAffordEvent(state: GameState, cost: Amounts): boolean { return affords(state, cost); }
 
 export function ownedCount(state: GameState, upgradeId: PurchaseId): number {
   return state.owned[upgradeId] ?? 0;
@@ -121,7 +152,7 @@ export function isDiscovered(state: GameState, resourceId: ResourceId): boolean 
 
 export function clickPower(state: GameState): number {
   const power = tools.reduce((best, tool) => ownedCount(state, tool.id) > 0 ? Math.max(best, tool.clickPower) : best, 1);
-  const event = events.find((candidate) => candidate.id === state.event?.id);
+  const event = state.event === null ? undefined : events.find((candidate) => candidate.id === state.event?.id);
   return (event?.effect.kind === "clickPower" ? power * event.effect.factor : power) * (1 + 0.1 * state.prestige.emeralds);
 }
 
@@ -151,7 +182,7 @@ export function buy(state: GameState, id: PurchaseId): GameState {
 }
 
 export function productionMultiplier(state: GameState, resourceId: ResourceId): number {
-  const event = events.find((candidate) => candidate.id === state.event?.id);
+  const event = state.event === null ? undefined : events.find((candidate) => candidate.id === state.event?.id);
   const eventFactor = event?.effect.kind === "production" && event.effect.resource === resourceId ? event.effect.factor : 1;
   return (1 + 0.01 * state.achievements.length) * eventFactor * (1 + 0.1 * state.prestige.emeralds);
 }
@@ -159,7 +190,9 @@ export function productionMultiplier(state: GameState, resourceId: ResourceId): 
 export function tick(state: GameState): GameState {
   const producing = upgrades.filter((upgrade: Upgrade) => upgrade.uses === undefined);
   const consuming = upgrades.filter((upgrade: Upgrade) => upgrade.uses !== undefined);
-  const output = producing.reduce<Amounts>((totals, upgrade) => {
+  const activeProducing = state.paused.length === 0 ? producing : producing.filter((upgrade) => !state.paused.includes(upgrade.id as UpgradeId));
+  const activeConsuming = state.paused.length === 0 ? consuming : consuming.filter((upgrade) => !state.paused.includes(upgrade.id as UpgradeId));
+  const output = activeProducing.reduce<Amounts>((totals, upgrade) => {
     const multiplied = resources.reduce<Amounts>((amounts, resource) => {
       const count = (upgrade.perTick as Amounts)[resource.id];
       if (count === undefined) return amounts;
@@ -169,7 +202,7 @@ export function tick(state: GameState): GameState {
   }, {});
   const produced = addAmounts(state, output, 1);
   const consumedOutput: Amounts = {};
-  const result = consuming.reduce((next, upgrade) => {
+  const result = activeConsuming.reduce((next, upgrade) => {
     let result = next;
     const uses: Amounts = upgrade.uses ?? {};
     for (let count = 0; count < ownedCount(state, upgrade.id); count += 1) {
@@ -189,7 +222,16 @@ export function tick(state: GameState): GameState {
     return result;
   }, produced);
   const secondsLeft = state.event === null ? 0 : state.event.secondsLeft - 1;
-  return earnAchievements({ ...result, event: secondsLeft > 0 && state.event !== null ? { ...state.event, secondsLeft } : null, stats: { ...state.stats, ticks: state.stats.ticks + 1, gathered: mergeAmounts(state.stats.gathered, mergeAmounts(output, consumedOutput)) } });
+  const activeEvent = state.event;
+  const definition = secondsLeft <= 0 && activeEvent !== null ? events.find((candidate) => candidate.id === activeEvent.id) : undefined;
+  let finalResult = result;
+  if (secondsLeft <= 0 && definition?.effect.kind === "creeper") {
+    const share = definition.effect.share;
+    const affectedResources = definition.effect.resources;
+    const loss = affectedResources.reduce<Amounts>((amounts, resource) => ({ ...amounts, [resource]: Math.floor(amountOf(result, resource) * share) }), {});
+    finalResult = addAmounts(result, loss, -1);
+  }
+  return earnAchievements({ ...finalResult, event: secondsLeft > 0 && state.event !== null ? { ...state.event, secondsLeft } : null, stats: { ...state.stats, ticks: state.stats.ticks + 1, gathered: mergeAmounts(state.stats.gathered, mergeAmounts(output, consumedOutput)) } });
 }
 
 export function canCraft(state: GameState, recipeId: RecipeId): boolean {
