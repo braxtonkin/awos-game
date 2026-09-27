@@ -10,3 +10,4 @@ Agents extend this game through small tickets, and several branches often change
 - If two branches both append to the same array or test file, resolve the merge conflict by keeping main's additions first, then yours, each once.
 - Add no runtime dependencies.
 - Write no code comments, except one that explains a why the code cannot show.
+- A ticket that adds something to buy adds the goals and bounds it names to sim/script.ts and sim/bounds.ts. npm test fails when a goal becomes unreachable or a bound is missed.
