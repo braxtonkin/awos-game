@@ -10,3 +10,4 @@ Agents extend this game through small tickets, and several branches often change
 - If two branches both append to the same array or test file, resolve the merge conflict by keeping main's additions first, then yours, each once.
 - Add no runtime dependencies.
 - Write no code comments, except one that explains a why the code cannot show.
+- CI runs npm run smoke on every pull request. A change that moves the Mine or Buy buttons updates smoke/smoke.ts in the same pull request. The smoke steps need a browser, so run them only in CI.
