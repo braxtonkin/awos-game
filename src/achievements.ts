@@ -19,6 +19,16 @@ export const achievements = [
   { id: "busyHands", name: "Busy hands", description: "Click 1,000 times", when: { kind: "clicks", atLeast: 1000 } },
   { id: "factory", name: "Factory", description: "Own 50 machines", when: { kind: "machines", atLeast: 50 } },
   { id: "stockpile", name: "Stockpile", description: "Gather 100,000 resources in one world", when: { kind: "gatheredTotal", atLeast: 100000 } },
+  { id: "deeper", name: "Deeper", description: "Reach the Deep caves", when: { kind: "owned", id: "deepCaves", atLeast: 1 } },
+  { id: "shiny", name: "Shiny", description: "Gather 1 Diamond", when: { kind: "gathered", resource: "diamond", atLeast: 1 } },
+  { id: "diamondTools", name: "Diamond tools", description: "Own a Diamond pickaxe", when: { kind: "owned", id: "diamondPickaxe", atLeast: 1 } },
+  { id: "goldRush", name: "Gold rush", description: "Gather 1,000 Gold ingots", when: { kind: "gathered", resource: "goldIngot", atLeast: 1000 } },
+  { id: "clickStorm", name: "Click storm", description: "Click 10,000 times", when: { kind: "clicks", atLeast: 10000 } },
+  { id: "machinist", name: "Machinist", description: "Own 100 machines", when: { kind: "machines", atLeast: 100 } },
+  { id: "smeltery", name: "Smeltery", description: "Own 10 Smelters", when: { kind: "owned", id: "smelter", atLeast: 10 } },
+  { id: "torchlight", name: "Torchlight", description: "Gather 10,000 Torches", when: { kind: "gathered", resource: "torch", atLeast: 10000 } },
+  { id: "obsidianWall", name: "Obsidian wall", description: "Gather 1,000 Obsidian", when: { kind: "gathered", resource: "obsidian", atLeast: 1000 } },
+  { id: "millionaire", name: "Millionaire", description: "Gather 1,000,000 resources in one world", when: { kind: "gatheredTotal", atLeast: 1000000 } },
 ] as const satisfies readonly { id: string; name: string; description: string; when: Condition }[];
 
 export type AchievementId = typeof achievements[number]["id"];
