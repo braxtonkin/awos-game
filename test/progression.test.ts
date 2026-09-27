@@ -37,7 +37,8 @@ test("zones require tools and are reached once purchased", () => {
 
 test("mining respects zones and tool click power", () => {
   expect(mine(initialState, "ironIngot")).toBe(initialState);
-  expect(mine(initialState, "ironOre").amounts).toEqual({ ironOre: 1 });
+  expect(mine(initialState, "ironOre")).toBe(initialState);
+  expect(mine(stateWith({ owned: { stonePickaxe: 1, caves: 1 } }), "ironOre").amounts).toEqual({ ironOre: 2 });
   expect(canMine(initialState, "wood")).toBe(true);
   expect(mine(stateWith({ owned: { stonePickaxe: 1 } }), "wood").amounts).toEqual({ wood: 2 });
   expect(mine(stateWith({ owned: { stonePickaxe: 1, ironPickaxe: 1 } }), "wood").amounts).toEqual({ wood: 3 });

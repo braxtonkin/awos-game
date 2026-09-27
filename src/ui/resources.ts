@@ -1,4 +1,4 @@
-import { amountOf, mine } from "../game.ts";
+import { amountOf, canMine, mine } from "../game.ts";
 import { formatAmount } from "../format.ts";
 import { resources } from "../resources.ts";
 import type { Section } from "./section.ts";
@@ -27,7 +27,14 @@ export const resourcesSection: Section = {
         row.append(button);
       }
       list.append(row);
-      return () => { amount.textContent = formatAmount(amountOf(state(), resource.id)); };
+      return () => {
+        amount.textContent = formatAmount(amountOf(state(), resource.id));
+        const button = row.querySelector("button");
+        if (button) {
+          button.textContent = canMine(state(), resource.id) ? "Mine" : "Locked";
+          button.disabled = !canMine(state(), resource.id);
+        }
+      };
     });
     return () => redraws.forEach((redraw) => redraw());
   },

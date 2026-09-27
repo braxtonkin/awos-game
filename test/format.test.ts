@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
-import { formatAmount, formatAmounts, upgradeDetails } from "../src/format.ts";
+import { formatAmount, formatAmounts, upgradeDetails, zoneDetails } from "../src/format.ts";
+import { zones } from "../src/zones.ts";
 
 test("formatAmount uses short suffixes and rounds down to one decimal place", () => {
   expect(formatAmount(0)).toBe("0");
@@ -41,4 +42,14 @@ test("upgradeDetails shows the Furnace cost, use, and charcoal production", () =
       perTick: { charcoal: 1 },
     }),
   ).toEqual(["Cost: 20 Dirt, 10 Wood", "Uses: 2 Wood per second", "Makes: 1 Charcoal per second"]);
+});
+
+test("zoneDetails lists the Caves cost, requirement, and resources", () => {
+  expect(zoneDetails(zones[1]!)).toEqual([
+    "Cost: 1.5K Stone, 400 Torch", "Needs: Stone pickaxe", "Mines: Iron ore",
+  ]);
+});
+
+test("zoneDetails lists Surface resources", () => {
+  expect(zoneDetails(zones[0]!)).toEqual(["Mines: Dirt, Wood, Coal, Stone"]);
 });
