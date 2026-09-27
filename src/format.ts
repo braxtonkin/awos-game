@@ -3,6 +3,7 @@ import type { Amounts } from "./resources.ts";
 import type { Upgrade } from "./upgrades.ts";
 import type { Zone } from "./zones.ts";
 import { tools } from "./tools.ts";
+import type { Recipe } from "./recipes.ts";
 import type { Tool } from "./tools.ts";
 
 export function formatAmount(amount: number): string {
@@ -56,6 +57,13 @@ export function zoneDetails(zone: Zone): string[] {
     ...(Object.keys(zone.cost).length === 0 ? [] : [`Cost: ${formatAmounts(zone.cost)}`]),
     ...(zone.requires === null || tool === undefined ? [] : [`Needs: ${tool.name}`]),
     `Mines: ${zone.resources.map((id) => resources.find((resource) => resource.id === id)?.name ?? id).join(", ")}`,
+  ];
+}
+
+export function recipeDetails(recipe: Recipe): string[] {
+  return [
+    `Uses: ${formatAmounts(recipe.inputs)}`,
+    `Makes: ${formatAmounts(recipe.outputs)}`,
   ];
 }
 
