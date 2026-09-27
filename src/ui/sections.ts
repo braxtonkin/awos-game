@@ -7,8 +7,10 @@ import { craftingSection } from "./crafting.ts";
 import { resetSection } from "./reset.ts";
 import { statsSection } from "./stats.ts";
 import { saveSection } from "./save.ts";
+import { eventSection } from "./event.ts";
 
 export const sections: readonly Section[] = [
+  eventSection,
   resourcesSection,
   toolsSection,
   zonesSection,

@@ -8,17 +8,27 @@ import { zones } from "./zones.ts";
 import type { ZoneId } from "./zones.ts";
 import { recipes } from "./recipes.ts";
 import type { RecipeId } from "./recipes.ts";
+import { events, eventChance } from "./events.ts";
+import type { EventId } from "./events.ts";
 
 export type PurchaseId = UpgradeId | ToolId | ZoneId;
 export type GameState = {
   readonly amounts: Amounts;
   readonly owned: Partial<Record<PurchaseId, number>>;
   readonly stats: { readonly clicks: number; readonly ticks: number; readonly gathered: Amounts };
+  readonly event: { readonly id: EventId; readonly secondsLeft: number } | null;
 };
 
 export const tickMs = 1000;
 export const maxOfflineMs = 8 * 60 * 60 * 1000;
-export const initialState: GameState = { amounts: {}, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} } };
+export const initialState: GameState = { amounts: {}, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, event: null };
+
+export function rollEvent(state: GameState, chance: number, pick: number): GameState {
+  if (state.event !== null || chance >= eventChance) return state;
+  const event = events[Math.floor(pick * events.length)];
+  if (event === undefined) return state;
+  return { ...state, event: { id: event.id, secondsLeft: event.seconds } };
+}
 
 export function amountOf(state: GameState, resourceId: ResourceId): number {
   return state.amounts[resourceId] ?? 0;
@@ -55,7 +65,9 @@ export function isDiscovered(state: GameState, resourceId: ResourceId): boolean 
 }
 
 export function clickPower(state: GameState): number {
-  return tools.reduce((best, tool) => ownedCount(state, tool.id) > 0 ? Math.max(best, tool.clickPower) : best, 1);
+  const power = tools.reduce((best, tool) => ownedCount(state, tool.id) > 0 ? Math.max(best, tool.clickPower) : best, 1);
+  const event = events.find((candidate) => candidate.id === state.event?.id);
+  return event?.effect.kind === "clickPower" ? power * event.effect.factor : power;
 }
 
 export function mine(state: GameState, resourceId: ResourceId): GameState {
@@ -83,8 +95,9 @@ export function buy(state: GameState, id: PurchaseId): GameState {
   return { ...paid, owned: { ...paid.owned, [id]: ownedCount(paid, id) + 1 } };
 }
 
-export function productionMultiplier(_state: GameState, _resourceId: ResourceId): number {
-  return 1;
+export function productionMultiplier(state: GameState, resourceId: ResourceId): number {
+  const event = events.find((candidate) => candidate.id === state.event?.id);
+  return event?.effect.kind === "production" && event.effect.resource === resourceId ? event.effect.factor : 1;
 }
 
 export function tick(state: GameState): GameState {
@@ -119,7 +132,8 @@ export function tick(state: GameState): GameState {
     }
     return result;
   }, produced);
-  return { ...result, stats: { ...state.stats, ticks: state.stats.ticks + 1, gathered: mergeAmounts(state.stats.gathered, mergeAmounts(output, consumedOutput)) } };
+  const secondsLeft = state.event === null ? 0 : state.event.secondsLeft - 1;
+  return { ...result, event: secondsLeft > 0 && state.event !== null ? { ...state.event, secondsLeft } : null, stats: { ...state.stats, ticks: state.stats.ticks + 1, gathered: mergeAmounts(state.stats.gathered, mergeAmounts(output, consumedOutput)) } };
 }
 
 export function canCraft(state: GameState, recipeId: RecipeId): boolean {
