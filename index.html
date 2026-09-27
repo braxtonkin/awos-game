@@ -17,6 +17,11 @@
         --wood: #a97843;
         --stone: #ddd6cc;
       }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
       :root[data-theme="dark"], :root:not([data-theme="light"]) {
         color-scheme: dark;
       }
@@ -46,6 +51,7 @@
       }
       body {
         margin: 0;
+        overflow-x: clip;
         background: var(--page);
         color: var(--ink);
         font-family: system-ui, sans-serif;
@@ -98,6 +104,7 @@
       }
       li {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         min-width: 0;
         gap: 1rem;
@@ -108,6 +115,10 @@
       }
       li > :first-child {
         flex: 1;
+      }
+      li > :not(button) {
+        min-width: 0;
+        overflow-wrap: anywhere;
       }
       .name {
         font-weight: 600;
