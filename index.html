@@ -17,6 +17,33 @@
         --wood: #a97843;
         --stone: #ddd6cc;
       }
+      :root[data-theme="dark"], :root:not([data-theme="light"]) {
+        color-scheme: dark;
+      }
+      :root[data-theme="dark"] {
+        --page: #1c1b19;
+        --card: #292724;
+        --line: #464139;
+        --muted: #b4aa9e;
+        --ink: #f1ece4;
+        --dirt: #8f6242;
+        --dirt-hover: #a97853;
+        --wood: #c99458;
+        --stone: #514d46;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --page: #1c1b19;
+          --card: #292724;
+          --line: #464139;
+          --muted: #b4aa9e;
+          --ink: #f1ece4;
+          --dirt: #8f6242;
+          --dirt-hover: #a97853;
+          --wood: #c99458;
+          --stone: #514d46;
+        }
+      }
       body {
         margin: 0;
         background: var(--page);
