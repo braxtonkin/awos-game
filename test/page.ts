@@ -18,6 +18,7 @@ export function openPage(save?: string, env: Partial<PageEnv> = {}): {
     storage,
     now: env.now ?? (() => 1_000_000),
     confirm: env.confirm ?? (() => true),
+    random: env.random ?? (() => 0.5),
   });
   return { page, storage };
 }

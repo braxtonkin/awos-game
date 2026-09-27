@@ -1,4 +1,4 @@
-import { catchUp, tick } from "./game.ts";
+import { catchUp, rollEvent, tick } from "./game.ts";
 import type { GameState } from "./game.ts";
 import { loadSave, serialize } from "./save.ts";
 import { sections } from "./ui/sections.ts";
@@ -7,6 +7,7 @@ export type PageEnv = {
   storage: Pick<Storage, "getItem" | "setItem">;
   now(): number;
   confirm(message: string): boolean;
+  random(): number;
 };
 
 export type Page = { tick(): void };
@@ -32,5 +33,5 @@ export function mount(root: HTMLElement, env: PageEnv): Page {
     redraws.push(section.build({ root: wrapper, state: () => state, update, env }));
   }
   update(state);
-  return { tick: () => update(tick(state)) };
+  return { tick: () => update(rollEvent(tick(state), env.random(), env.random())) };
 }
