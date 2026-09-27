@@ -1,6 +1,7 @@
-import { buyMany, costOfMany, maxAffordable, ownedCount } from "../game.ts";
+import { buyMany, costOfMany, isDiscovered, maxAffordable, ownedCount } from "../game.ts";
 import { upgradeDetails } from "../format.ts";
 import { upgrades } from "../upgrades.ts";
+import type { ResourceId } from "../resources.ts";
 import type { Section } from "./section.ts";
 
 type Mode = 1 | 10 | "max";
@@ -41,6 +42,7 @@ export const upgradesSection: Section = {
       list.append(row);
       return () => {
         const count = batch(upgrade.id);
+        row.hidden = !(Object.keys(upgrade.cost) as ResourceId[]).every((id) => isDiscovered(state(), id));
         upgradeDetails(upgrade, costOfMany(state(), upgrade.id, count)).forEach((line, index) => {
           const detail = detailLines[index];
           if (detail !== undefined) detail.textContent = line;

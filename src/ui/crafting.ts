@@ -1,6 +1,7 @@
-import { canCraft, craft } from "../game.ts";
+import { canCraft, craft, isDiscovered } from "../game.ts";
 import { recipeDetails } from "../format.ts";
 import { recipes } from "../recipes.ts";
+import type { ResourceId } from "../resources.ts";
 import type { Section } from "./section.ts";
 
 export const craftingSection: Section = {
@@ -26,7 +27,10 @@ export const craftingSection: Section = {
         return detail;
       }), button);
       list.append(row);
-      return () => { button.disabled = !canCraft(state(), recipe.id); };
+      return () => {
+        row.hidden = !(Object.keys(recipe.inputs) as ResourceId[]).every((id) => isDiscovered(state(), id));
+        button.disabled = !canCraft(state(), recipe.id);
+      };
     });
     return () => redraws.forEach((redraw) => redraw());
   },
