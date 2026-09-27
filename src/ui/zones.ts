@@ -1,4 +1,4 @@
-import { buy, canBuy, ownedCount } from "../game.ts";
+import { buy, canBuy, ownedCount, zoneReached } from "../game.ts";
 import { zoneDetails } from "../format.ts";
 import { zones } from "../zones.ts";
 import type { Section } from "./section.ts";
@@ -11,7 +11,7 @@ export const zonesSection: Section = {
     const list = document.createElement("ul");
     list.id = "zones";
     root.append(list);
-    const redraws = zones.map((zone) => {
+    const redraws = zones.map((zone, index) => {
       const row = document.createElement("li");
       row.dataset.zone = zone.id;
       const details = document.createElement("div");
@@ -29,6 +29,7 @@ export const zonesSection: Section = {
       row.append(details, button);
       list.append(row);
       return () => {
+        row.hidden = index > 0 && !zoneReached(state(), zones[index - 1]!.id);
         const reached = ownedCount(state(), zone.id) > 0 || zone.id === zones[0]?.id;
         button.textContent = reached ? "Reached" : "Explore";
         button.disabled = reached || !canBuy(state(), zone.id);
