@@ -8,4 +8,6 @@ export const bounds: Readonly<Record<string, number>> = {
   "ironPickaxe:1": 1060,
   "smelter:4": 690,
   "torchWorkshop:2": 770,
+  "deepCaves:1": 2000,
+  "diamondPickaxe:1": 4380,
 };

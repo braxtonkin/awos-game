@@ -9,6 +9,8 @@ import type { ZoneId } from "./zones.ts";
 import { recipes } from "./recipes.ts";
 import type { RecipeId } from "./recipes.ts";
 import { events, eventChance } from "./events.ts";
+import { achievements } from "./achievements.ts";
+import type { AchievementId, Condition } from "./achievements.ts";
 import type { EventId } from "./events.ts";
 
 export type PurchaseId = UpgradeId | ToolId | ZoneId;
@@ -17,11 +19,29 @@ export type GameState = {
   readonly owned: Partial<Record<PurchaseId, number>>;
   readonly stats: { readonly clicks: number; readonly ticks: number; readonly gathered: Amounts };
   readonly event: { readonly id: EventId; readonly secondsLeft: number } | null;
+  readonly achievements: readonly AchievementId[];
 };
 
 export const tickMs = 1000;
 export const maxOfflineMs = 8 * 60 * 60 * 1000;
-export const initialState: GameState = { amounts: {}, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, event: null };
+export const initialState: GameState = { amounts: {}, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [] };
+
+export function meets(state: GameState, condition: Condition): boolean {
+  switch (condition.kind) {
+    case "gathered": return (state.stats.gathered[condition.resource] ?? 0) >= condition.atLeast;
+    case "gatheredTotal": return resources.reduce((sum, resource) => sum + (state.stats.gathered[resource.id] ?? 0), 0) >= condition.atLeast;
+    case "owned": return ownedCount(state, condition.id) >= condition.atLeast;
+    case "machines": return upgrades.reduce((sum, upgrade) => sum + ownedCount(state, upgrade.id), 0) >= condition.atLeast;
+    case "clicks": return state.stats.clicks >= condition.atLeast;
+    default: return assertNever(condition);
+  }
+}
+
+export function earnAchievements(state: GameState): GameState {
+  const earned = new Set(state.achievements);
+  const newlyEarned = achievements.filter((achievement) => !earned.has(achievement.id) && meets(state, achievement.when)).map((achievement) => achievement.id);
+  return newlyEarned.length === 0 ? state : { ...state, achievements: [...state.achievements, ...newlyEarned] };
+}
 
 export function rollEvent(state: GameState, chance: number, pick: number): GameState {
   if (state.event !== null || chance >= eventChance) return state;
@@ -49,6 +69,28 @@ export function costOf(state: GameState, id: PurchaseId): Amounts {
   }, {});
 }
 
+export function costOfMany(state: GameState, id: UpgradeId, count: number): Amounts {
+  let total: Amounts = {};
+  for (let index = 0; index < count; index += 1) {
+    const atCount = { ...state, owned: { ...state.owned, [id]: ownedCount(state, id) + index } };
+    total = mergeAmounts(total, costOf(atCount, id));
+  }
+  return total;
+}
+
+export function maxAffordable(state: GameState, id: UpgradeId): number {
+  let count = 0;
+  while (affords(state, costOfMany(state, id, count + 1))) count += 1;
+  return count;
+}
+
+export function buyMany(state: GameState, id: UpgradeId, count: number): GameState {
+  const cost = costOfMany(state, id, count);
+  if (!affords(state, cost)) return state;
+  const paid = addAmounts(state, cost, -1);
+  return { ...paid, owned: { ...paid.owned, [id]: ownedCount(paid, id) + count } };
+}
+
 export function zoneReached(state: GameState, zoneId: ZoneId): boolean {
   return zones[0]?.id === zoneId || ownedCount(state, zoneId) === 1;
 }
@@ -71,12 +113,12 @@ export function clickPower(state: GameState): number {
 }
 
 export function mine(state: GameState, resourceId: ResourceId): GameState {
-  if (!canMine(state, resourceId)) return state;
+  if (!canMine(state, resourceId)) return earnAchievements(state);
   const resource = resources.find((candidate) => candidate.id === resourceId);
-  if (resource === undefined) return state;
+  if (resource === undefined) return earnAchievements(state);
   const mined = { [resource.id]: resource.perClick * clickPower(state) };
   const next = addAmounts(state, mined, 1);
-  return { ...next, stats: { ...state.stats, clicks: state.stats.clicks + 1, gathered: mergeAmounts(state.stats.gathered, mined) } };
+  return earnAchievements({ ...next, stats: { ...state.stats, clicks: state.stats.clicks + 1, gathered: mergeAmounts(state.stats.gathered, mined) } });
 }
 
 export function canBuy(state: GameState, id: PurchaseId): boolean {
@@ -90,14 +132,15 @@ export function canBuy(state: GameState, id: PurchaseId): boolean {
 }
 
 export function buy(state: GameState, id: PurchaseId): GameState {
-  if (!canBuy(state, id)) return state;
+  if (!canBuy(state, id)) return earnAchievements(state);
   const paid = addAmounts(state, costOf(state, id), -1);
-  return { ...paid, owned: { ...paid.owned, [id]: ownedCount(paid, id) + 1 } };
+  return earnAchievements({ ...paid, owned: { ...paid.owned, [id]: ownedCount(paid, id) + 1 } });
 }
 
 export function productionMultiplier(state: GameState, resourceId: ResourceId): number {
   const event = events.find((candidate) => candidate.id === state.event?.id);
-  return event?.effect.kind === "production" && event.effect.resource === resourceId ? event.effect.factor : 1;
+  const eventFactor = event?.effect.kind === "production" && event.effect.resource === resourceId ? event.effect.factor : 1;
+  return (1 + 0.01 * state.achievements.length) * eventFactor;
 }
 
 export function tick(state: GameState): GameState {
@@ -133,7 +176,7 @@ export function tick(state: GameState): GameState {
     return result;
   }, produced);
   const secondsLeft = state.event === null ? 0 : state.event.secondsLeft - 1;
-  return { ...result, event: secondsLeft > 0 && state.event !== null ? { ...state.event, secondsLeft } : null, stats: { ...state.stats, ticks: state.stats.ticks + 1, gathered: mergeAmounts(state.stats.gathered, mergeAmounts(output, consumedOutput)) } };
+  return earnAchievements({ ...result, event: secondsLeft > 0 && state.event !== null ? { ...state.event, secondsLeft } : null, stats: { ...state.stats, ticks: state.stats.ticks + 1, gathered: mergeAmounts(state.stats.gathered, mergeAmounts(output, consumedOutput)) } });
 }
 
 export function canCraft(state: GameState, recipeId: RecipeId): boolean {
@@ -143,9 +186,9 @@ export function canCraft(state: GameState, recipeId: RecipeId): boolean {
 
 export function craft(state: GameState, recipeId: RecipeId): GameState {
   const recipe = recipes.find((candidate) => candidate.id === recipeId);
-  if (recipe === undefined || !canCraft(state, recipeId)) return state;
+  if (recipe === undefined || !canCraft(state, recipeId)) return earnAchievements(state);
   const next = addAmounts(addAmounts(state, recipe.inputs, -1), recipe.outputs, 1);
-  return { ...next, stats: { ...state.stats, clicks: state.stats.clicks + 1, gathered: mergeAmounts(state.stats.gathered, recipe.outputs) } };
+  return earnAchievements({ ...next, stats: { ...state.stats, clicks: state.stats.clicks + 1, gathered: mergeAmounts(state.stats.gathered, recipe.outputs) } });
 }
 
 export function catchUp(state: GameState, elapsedMs: number): GameState {
@@ -187,3 +230,5 @@ function scaleAmounts(amounts: Amounts, factor: number): Amounts {
     return amount === undefined || factor === 0 ? result : { ...result, [resource.id]: amount * factor };
   }, {});
 }
+
+function assertNever(value: never): never { throw new Error(`Unknown achievement condition: ${JSON.stringify(value)}`); }
