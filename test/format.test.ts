@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
-import { formatAmount, formatAmounts, upgradeDetails } from "../src/format.ts";
+import { formatAmount, formatAmounts, recipeDetails, upgradeDetails } from "../src/format.ts";
+import { recipes } from "../src/recipes.ts";
 
 test("formatAmount uses short suffixes and rounds down to one decimal place", () => {
   expect(formatAmount(0)).toBe("0");
@@ -41,4 +42,9 @@ test("upgradeDetails shows the Furnace cost, use, and charcoal production", () =
       perTick: { charcoal: 1 },
     }),
   ).toEqual(["Cost: 20 Dirt, 10 Wood", "Uses: 2 Wood per second", "Makes: 1 Charcoal per second"]);
+});
+
+test("recipeDetails shows the Torch and Iron ingot inputs and outputs", () => {
+  expect(recipeDetails(recipes[0])).toEqual(["Uses: 1 Wood, 1 Coal", "Makes: 4 Torch"]);
+  expect(recipeDetails(recipes[1])).toEqual(["Uses: 1 Iron ore, 1 Coal", "Makes: 1 Iron ingot"]);
 });
