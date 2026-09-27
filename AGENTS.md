@@ -10,3 +10,5 @@ Agents extend this game through small tickets, and several branches often change
 - If two branches both append to the same array or test file, resolve the merge conflict by keeping main's additions first, then yours, each once.
 - Add no runtime dependencies.
 - Write no code comments, except one that explains a why the code cannot show.
+- Build every test state with stateWith from test/state.ts, and assert only the fields the test checks.
+- Put each feature's tests in their own file, test/<feature>.test.ts, so parallel branches add files instead of editing one.
