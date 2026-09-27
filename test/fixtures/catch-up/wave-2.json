@@ -1,0 +1,72 @@
+{
+  "amounts": {
+    "dirt": 67769.12000003956,
+    "wood": 489362.36,
+    "ironOre": 102285.38000000743,
+    "coal": 145081.4799998952,
+    "stone": 533672.7200003073,
+    "charcoal": 51461.18000012151,
+    "ironIngot": 267107.41999931936,
+    "torch": 268916.68000014673,
+    "diamond": 2
+  },
+  "owned": {
+    "woodenPickaxe": 2,
+    "woodenAxe": 25,
+    "furnace": 5,
+    "quarry": 8,
+    "coalMine": 6,
+    "ironMine": 5,
+    "smelter": 4,
+    "torchWorkshop": 2,
+    "stonePickaxe": 1,
+    "ironPickaxe": 1,
+    "diamondPickaxe": 1,
+    "caves": 1,
+    "deepCaves": 1
+  },
+  "paused": [],
+  "stats": {
+    "clicks": 2112,
+    "ticks": 30000,
+    "gathered": {
+      "dirt": 68847.12000004054,
+      "wood": 850909.36,
+      "ironOre": 339053.3799999765,
+      "coal": 204474.47999986977,
+      "stone": 547956.7200003219,
+      "charcoal": 169828.17999998806,
+      "ironIngot": 271030.4200001582,
+      "torch": 271656.6800001588,
+      "diamond": 1002
+    }
+  },
+  "lifetime": {
+    "clicks": 0,
+    "ticks": 0,
+    "gathered": 0
+  },
+  "event": null,
+  "achievements": [
+    "firstLog",
+    "stoneTools",
+    "intoTheDark",
+    "lumberjack",
+    "ironWorks",
+    "ironTools",
+    "factory",
+    "busyHands",
+    "torchbearer",
+    "deeper",
+    "shiny",
+    "diamondTools",
+    "stockpile",
+    "torchlight",
+    "millionaire"
+  ],
+  "prestige": {
+    "emeralds": 0,
+    "worlds": 0,
+    "perks": []
+  }
+}
