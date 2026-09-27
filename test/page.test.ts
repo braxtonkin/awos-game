@@ -99,10 +99,10 @@ test("crafting Torch reveals its resource row", () => {
   expect(document.querySelector<HTMLElement>('[data-resource="torch"]')?.hidden).toBe(false);
 });
 
-test("Quarry and Coal mine follow Furnace in the upgrades list", () => {
+test("Quarry, Coal mine, and automation machines follow Furnace in the upgrades list", () => {
   openPage();
   expect([...document.querySelectorAll("[data-upgrade] .name")].map((name) => name.textContent)).toEqual([
-    "Wooden pickaxe", "Wooden axe", "Furnace", "Quarry", "Coal mine",
+    "Wooden pickaxe", "Wooden axe", "Furnace", "Quarry", "Coal mine", "Iron mine", "Smelter", "Torch workshop",
   ]);
 });
 
