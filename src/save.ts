@@ -7,7 +7,7 @@ import { zones } from "./zones.ts";
 
 export type LoadedSave = { readonly state: GameState; readonly savedAt: number | null };
 
-export function serialize(state: GameState, savedAt?: number): string {
+export function serialize(state: Pick<GameState, "amounts" | "owned">, savedAt?: number): string {
   return JSON.stringify(savedAt === undefined ? state : { state, savedAt });
 }
 
