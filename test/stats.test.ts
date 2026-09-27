@@ -32,11 +32,11 @@ test("old v1 fixture loads with zero stats", () => {
 });
 
 test("old v2 fixture loads with zero lifetime totals", () => {
-  expect(loadSave(JSON.stringify(v2)).state.lifetime).toEqual({ clicks: 0, ticks: 0, gathered: 0 });
+  expect(loadSave(JSON.stringify(v2)).state.lifetime).toEqual({ clicks: 0, ticks: 0, gathered: 0, records: {} });
 });
 
 test("stats page displays combined all-world totals", () => {
-  openPage(serialize(stateWith({ stats: { clicks: 2, ticks: 60, gathered: { wood: 100 } }, lifetime: { clicks: 3, ticks: 3600, gathered: 500 }, prestige: { ...initialState.prestige, emeralds: 0, worlds: 2 } }), 1_000_000));
+  openPage(serialize(stateWith({ stats: { clicks: 2, ticks: 60, gathered: { wood: 100 } }, lifetime: { clicks: 3, ticks: 3600, gathered: 500, records: {} }, prestige: { ...initialState.prestige, emeralds: 0, worlds: 2 } }), 1_000_000));
   const stats = document.querySelector('[data-section="stats"]')?.textContent ?? "";
   expect(stats).toContain("Worlds started: 2");
   expect(stats).toContain("Time in all worlds: 1h 01m");
