@@ -5,6 +5,8 @@ import { upgrades } from "./upgrades.ts";
 import { tools } from "./tools.ts";
 import { zones } from "./zones.ts";
 import { events } from "./events.ts";
+import { achievements } from "./achievements.ts";
+import type { AchievementId } from "./achievements.ts";
 
 export const currentSaveVersion = 2;
 
@@ -90,7 +92,16 @@ function parseState(value: SaveRecord): GameState {
       gathered: { ...initialState.stats.gathered, ...keepCounts(isRecord(value.stats) ? value.stats.gathered : undefined, resources.map((resource) => resource.id)) },
     },
     event,
+    achievements: keepAchievementIds(value.achievements),
   };
+}
+
+function keepAchievementIds(value: unknown): AchievementId[] {
+  const known = new Set<string>(achievements.map((achievement) => achievement.id));
+  if (!Array.isArray(value)) return [];
+  const kept: AchievementId[] = [];
+  for (const id of value) if (typeof id === "string" && known.has(id) && !kept.includes(id as AchievementId)) kept.push(id as AchievementId);
+  return kept;
 }
 
 function isRecord(value: unknown): value is SaveRecord {
