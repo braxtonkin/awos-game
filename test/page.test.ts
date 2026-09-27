@@ -51,7 +51,7 @@ test("mining wood updates the page and persisted save", () => {
   const { storage } = openPage();
   document.querySelector<HTMLButtonElement>('[data-resource="wood"] button')?.click();
   expect(document.querySelector('[data-resource="wood"] .amount')?.textContent).toBe("1");
-  expect(deserialize(storage.getItem("awos-game:save"))).toEqual({ amounts: { wood: 1 }, owned: {}, stats: { clicks: 1, ticks: 0, gathered: { wood: 1 } }, event: null, achievements: ["firstLog"] });
+  expect(deserialize(storage.getItem("awos-game:save"))).toEqual({ amounts: { wood: 1 }, owned: {}, paused: [], stats: { clicks: 1, ticks: 0, gathered: { wood: 1 } }, event: null, achievements: ["firstLog"] });
 });
 
 test("buying a wooden axe spends wood and shows it owned", () => {
