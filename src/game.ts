@@ -63,6 +63,7 @@ export function meets(state: GameState, condition: Condition): boolean {
     case "clicks": return state.stats.clicks >= condition.atLeast;
     case "worlds": return state.prestige.worlds >= condition.atLeast;
     case "emeralds": return state.prestige.emeralds >= condition.atLeast;
+    case "perks": return state.prestige.perks.length >= condition.atLeast;
     default: return assertNever(condition);
   }
 }
