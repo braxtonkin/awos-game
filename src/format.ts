@@ -1,6 +1,7 @@
 import { resources } from "./resources.ts";
 import type { Amounts } from "./resources.ts";
 import type { Upgrade } from "./upgrades.ts";
+import type { Recipe } from "./recipes.ts";
 import type { Tool } from "./tools.ts";
 
 export function formatAmount(amount: number): string {
@@ -45,6 +46,13 @@ export function upgradeDetails(upgrade: Upgrade, cost: Amounts): string[] {
     `Cost: ${formatAmounts(cost)}`,
     ...(upgrade.uses === undefined ? [] : [`Uses: ${formatAmounts(upgrade.uses)} per second`]),
     `Makes: ${formatAmounts(upgrade.perTick)} per second`,
+  ];
+}
+
+export function recipeDetails(recipe: Recipe): string[] {
+  return [
+    `Uses: ${formatAmounts(recipe.inputs)}`,
+    `Makes: ${formatAmounts(recipe.outputs)}`,
   ];
 }
 

@@ -40,8 +40,17 @@ test("one page tick produces wood from two wooden axes", () => {
 test("sections appear in page order", () => {
   openPage();
   expect([...document.querySelectorAll("main h2")].map((heading) => heading.textContent)).toEqual([
-    "Resources", "Tools", "Upgrades", "Stats", "Save", "Game",
+    "Resources", "Tools", "Upgrades", "Crafting", "Stats", "Save", "Game",
   ]);
+});
+
+test("crafting consumes ingredients, produces Torch, and disables the button", () => {
+  openPage(JSON.stringify({ amounts: { wood: 1, coal: 1 }, owned: {} }));
+  const button = document.querySelector<HTMLButtonElement>('[data-recipe="torch"] button');
+  button?.click();
+  expect(document.querySelector('[data-resource="torch"] .amount')?.textContent).toBe("4");
+  expect(document.querySelector('[data-resource="coal"] .amount')?.textContent).toBe("0");
+  expect(button?.disabled).toBe(true);
 });
 
 test("Quarry and Coal mine follow Furnace in the upgrades list", () => {
