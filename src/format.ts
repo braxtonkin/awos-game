@@ -57,10 +57,12 @@ export function formatAmounts(amounts: Amounts, numbers: NumberFormat = "short")
 }
 
 export function upgradeDetails(upgrade: Upgrade, cost: Amounts, numbers: NumberFormat = "short"): string[] {
+  const special = upgrade.id === "ironGolem" ? ["Damage: 50 per second to the Ender Dragon"] : [];
   return [
     `Cost: ${formatAmounts(cost, numbers)}`,
     ...(upgrade.uses === undefined ? [] : [`Uses: ${formatAmounts(upgrade.uses, numbers)} per second`]),
-    `Makes: ${formatAmounts(upgrade.perTick, numbers)} per second`,
+    ...(Object.keys(upgrade.perTick).length === 0 ? [] : [`Makes: ${formatAmounts(upgrade.perTick, numbers)} per second`]),
+    ...special,
   ];
 }
 

@@ -5,7 +5,7 @@ import { loadSave } from "../src/save.ts";
 import { stateWith } from "./state.ts";
 
 test("achievement catalog has the required order", () => {
-  expect(achievements.map(({ id }) => id)).toEqual(["firstLog", "lumberjack", "stoneTools", "intoTheDark", "ironWorks", "ironTools", "torchbearer", "busyHands", "factory", "stockpile", "deeper", "shiny", "diamondTools", "goldRush", "clickStorm", "machinist", "smeltery", "torchlight", "obsidianWall", "millionaire", "tooHot", "netheriteTools", "blazing", "pearlDiver", "ancientHistory", "freshStart", "worldHopper", "emeraldHoard", "lavaLord", "tenMillion", "beyondThePortal", "twelveEyes", "endStoneMason", "perkCollector", "fullFactory", "farmer", "hundredMillion"]);
+  expect(achievements.map(({ id }) => id)).toEqual(["firstLog", "lumberjack", "stoneTools", "intoTheDark", "ironWorks", "ironTools", "torchbearer", "busyHands", "factory", "stockpile", "deeper", "shiny", "diamondTools", "goldRush", "clickStorm", "machinist", "smeltery", "torchlight", "obsidianWall", "millionaire", "tooHot", "netheriteTools", "blazing", "pearlDiver", "ancientHistory", "freshStart", "worldHopper", "emeraldHoard", "lavaLord", "tenMillion", "beyondThePortal", "twelveEyes", "endStoneMason", "perkCollector", "fullFactory", "farmer", "hundredMillion", "dragonSlayer"]);
 });
 
 test("reaching the End earns beyondThePortal", () => {
@@ -34,6 +34,7 @@ test("owning 10 Enderman farms earns farmer", () => {
 
 test("gathering 100,000,000 resources earns hundredMillion", () => {
   expect(earnAchievements(stateWith({ stats: { clicks: 0, ticks: 0, gathered: { wood: 100000000 } } })).achievements).toContain("hundredMillion");
+  expect(achievements.map(({ id }) => id)).toEqual(["firstLog", "lumberjack", "stoneTools", "intoTheDark", "ironWorks", "ironTools", "torchbearer", "busyHands", "factory", "stockpile", "deeper", "shiny", "diamondTools", "goldRush", "clickStorm", "machinist", "smeltery", "torchlight", "obsidianWall", "millionaire", "tooHot", "netheriteTools", "blazing", "pearlDiver", "ancientHistory", "freshStart", "worldHopper", "emeraldHoard", "lavaLord", "tenMillion", "beyondThePortal", "twelveEyes", "endStoneMason", "perkCollector", "fullFactory", "farmer", "hundredMillion", "dragonSlayer"]);
 });
 
 test("mining wood earns firstLog only once", () => {

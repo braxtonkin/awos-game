@@ -1,10 +1,10 @@
-import { buy, canBuy, canMine, canStartNewWorld, costOf, craft, initialState, mine, ownedCount, startNewWorld, tick } from "../src/game.ts";
+import { attack, buy, canBuy, canMine, canStartNewWorld, costOf, craft, initialState, mine, ownedCount, startNewWorld, tick } from "../src/game.ts";
 import type { GameState, PurchaseId } from "../src/game.ts";
 import { resources } from "../src/resources.ts";
 import type { Amounts, ResourceId } from "../src/resources.ts";
 import { recipes, type Recipe } from "../src/recipes.ts";
 
-export type Goal = { readonly order: number; readonly own: PurchaseId; readonly count: number } | { readonly order: number; readonly newWorld: true };
+export type Goal = { readonly order: number; readonly own: PurchaseId; readonly count: number } | { readonly order: number; readonly newWorld: true } | { readonly order: number; readonly defeat: "enderDragon" };
 export type Report = {
   readonly reached: readonly { readonly label: string; readonly tick: number; readonly world?: number }[];
   readonly unmet: readonly string[];
@@ -16,11 +16,12 @@ export function simulate(options: { ticks: number; clicksPerTick: number; script
   const reached: { label: string; tick: number; world?: number }[] = [];
   const recorded = new Set<string>();
   const usedWorldGoals = new Set<number>();
+  const defeatedGoals = new Set<number>();
   let state = options.start ?? initialState;
   for (let currentTick = 1; currentTick <= options.ticks; currentTick += 1) {
     let budget = options.clicksPerTick;
     while (true) {
-      const goal = goals.find((candidate) => "newWorld" in candidate ? !usedWorldGoals.has(candidate.order) : ownedCount(state, candidate.own) < candidate.count);
+      const goal = goals.find((candidate) => "newWorld" in candidate ? !usedWorldGoals.has(candidate.order) : "defeat" in candidate ? !defeatedGoals.has(candidate.order) : ownedCount(state, candidate.own) < candidate.count);
       if (goal === undefined) break;
       if ("newWorld" in goal) {
         if (!canStartNewWorld(state)) break;
@@ -28,6 +29,12 @@ export function simulate(options: { ticks: number; clicksPerTick: number; script
         usedWorldGoals.add(goal.order);
         reached.push({ label: "newWorld", tick: currentTick, world: state.prestige.worlds + 1 });
         continue;
+      }
+      if ("defeat" in goal) {
+        if (state.dragonHealth === 0) { defeatedGoals.add(goal.order); reached.push({ label: goal.defeat, tick: currentTick }); continue; }
+        if (ownedCount(state, "end") === 0) break;
+        if (budget <= 0) break;
+        state = attack(state); budget -= 1; continue;
       }
       const label = `${goal.own}:${goal.count}`;
       if (canBuy(state, goal.own)) {
@@ -59,7 +66,7 @@ export function simulate(options: { ticks: number; clicksPerTick: number; script
     }
     state = tick(state);
   }
-  const unmet = goals.filter((goal) => "newWorld" in goal ? !usedWorldGoals.has(goal.order) : ownedCount(state, goal.own) < goal.count).map((goal) => "newWorld" in goal ? "newWorld" : `${goal.own}:${goal.count}`);
+  const unmet = goals.filter((goal) => "newWorld" in goal ? !usedWorldGoals.has(goal.order) : "defeat" in goal ? !defeatedGoals.has(goal.order) && state.dragonHealth > 0 : ownedCount(state, goal.own) < goal.count).map((goal) => "newWorld" in goal ? "newWorld" : "defeat" in goal ? goal.defeat : `${goal.own}:${goal.count}`);
   return { reached, unmet, state };
 }
 
