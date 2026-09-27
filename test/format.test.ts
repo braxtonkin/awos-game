@@ -1,6 +1,10 @@
 import { expect, test } from "vitest";
-import { formatAmount, formatAmounts, upgradeDetails, zoneDetails } from "../src/format.ts";
+import { formatAmount, formatAmounts, formatDuration, upgradeDetails, zoneDetails } from "../src/format.ts";
 import { zones } from "../src/zones.ts";
+
+test.each([[59, "59s"], [249, "4m 09s"], [3900, "1h 05m"]] as const)("formatDuration(%i)", (seconds, expected) => {
+  expect(formatDuration(seconds)).toBe(expected);
+});
 
 test("formatAmount uses short suffixes and rounds down to one decimal place", () => {
   expect(formatAmount(0)).toBe("0");

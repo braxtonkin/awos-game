@@ -32,7 +32,7 @@ test("mining wood updates the page and persisted save", () => {
   const { storage } = openPage();
   document.querySelector<HTMLButtonElement>('[data-resource="wood"] button')?.click();
   expect(document.querySelector('[data-resource="wood"] .amount')?.textContent).toBe("1");
-  expect(deserialize(storage.getItem("awos-game:save"))).toEqual({ amounts: { wood: 1 }, owned: {} });
+  expect(deserialize(storage.getItem("awos-game:save"))).toEqual({ amounts: { wood: 1 }, owned: {}, stats: { clicks: 1, ticks: 0, gathered: { wood: 1 } } });
 });
 
 test("buying a wooden axe spends wood and shows it owned", () => {
@@ -60,7 +60,7 @@ test("one page tick produces wood from two wooden axes", () => {
 test("sections appear in page order", () => {
   openPage();
   expect([...document.querySelectorAll("main h2")].map((heading) => heading.textContent)).toEqual([
-    "Resources", "Tools", "Zones", "Upgrades", "Save", "Game",
+    "Resources", "Tools", "Zones", "Upgrades", "Stats", "Save", "Game",
   ]);
 });
 
@@ -69,6 +69,15 @@ test("Quarry and Coal mine follow Furnace in the upgrades list", () => {
   expect([...document.querySelectorAll("[data-upgrade] .name")].map((name) => name.textContent)).toEqual([
     "Wooden pickaxe", "Wooden axe", "Furnace", "Quarry", "Coal mine",
   ]);
+});
+
+test("stats update after mining three times", () => {
+  openPage();
+  const mine = document.querySelector<HTMLButtonElement>('[data-resource="wood"] button');
+  mine?.click(); mine?.click(); mine?.click();
+  const stats = document.querySelector('[data-section="stats"]')?.textContent;
+  expect(stats).toContain("Clicks: 3");
+  expect(stats).toContain("Wood gathered: 3");
 });
 
 test("declining reset keeps progress", () => {

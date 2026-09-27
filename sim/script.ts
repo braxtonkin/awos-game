@@ -14,4 +14,11 @@ export const script: readonly Goal[] = [
   { order: 120, own: "furnace", count: 1 },
   { order: 130, own: "woodenAxe", count: 8 },
   { order: 140, own: "coalMine", count: 4 },
+  { order: 90, own: "stonePickaxe", count: 1 },
+  { order: 150, own: "caves", count: 1 },
+  { order: 160, own: "woodenAxe", count: 12 },
+  { order: 170, own: "furnace", count: 2 },
+  { order: 200, own: "woodenAxe", count: 15 },
+  { order: 210, own: "furnace", count: 3 },
+  { order: 240, own: "ironPickaxe", count: 1 },
 ];
