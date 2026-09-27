@@ -10,3 +10,4 @@ Agents extend this game through small tickets, and several branches often change
 - If two branches both append to the same array or test file, resolve the merge conflict by keeping main's additions first, then yours, each once.
 - Add no runtime dependencies.
 - Write no code comments, except one that explains a why the code cannot show.
+A change that renames or restructures saved data raises currentSaveVersion, adds a migration, and adds a fixture under test/fixtures/saves/. A change that only adds a field needs none of these, because the decoder gives a missing field its initial value.

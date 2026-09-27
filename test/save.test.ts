@@ -1,72 +1,56 @@
 import { expect, test } from "vitest";
-import { deserialize, loadSave, serialize } from "../src/save.ts";
+import { decodeSave, loadSave, serialize } from "../src/save.ts";
 
-test("serialize writes the state as JSON", () => {
-  expect(serialize({ amounts: { dirt: 3, wood: 1 }, owned: { woodenPickaxe: 2 } })).toBe(
-    '{"amounts":{"dirt":3,"wood":1},"owned":{"woodenPickaxe":2}}',
-  );
-});
-
-test("serialize writes the save timestamp beside the state", () => {
+test("serialize writes a version 2 save with its timestamp", () => {
   expect(serialize({ amounts: { dirt: 3 }, owned: {} }, 1234)).toBe(
-    '{"state":{"amounts":{"dirt":3},"owned":{}},"savedAt":1234}',
+    '{"version":2,"savedAt":1234,"state":{"amounts":{"dirt":3},"owned":{}}}',
   );
 });
 
-test("loadSave accepts an older save without a timestamp", () => {
-  expect(loadSave('{"amounts":{"dirt":1},"owned":{"woodenPickaxe":1}}')).toEqual({
-    state: { amounts: { dirt: 1 }, owned: { woodenPickaxe: 1 } },
-    savedAt: null,
+test.each([
+  ["v0", '{"amounts":{"dirt":12,"wood":30},"owned":{"woodenAxe":2}}', 0, null],
+  ["v1", '{"state":{"amounts":{"dirt":12,"wood":30},"owned":{"woodenAxe":2}},"savedAt":1700000000000}', 1, 1700000000000],
+  ["v2", '{"version":2,"savedAt":1700000000000,"state":{"amounts":{"dirt":12,"wood":30},"owned":{"woodenAxe":2}}}', 2, 1700000000000],
+] as const)(
+  "decodeSave migrates fixture %s",
+  (_name, text, version, savedAt) => {
+    expect(decodeSave(text)).toEqual({
+      kind: "loaded",
+      version,
+      savedAt,
+      state: { amounts: { dirt: 12, wood: 30 }, owned: { woodenAxe: 2 } },
+    });
+  },
+);
+
+test("decodeSave reports invalid and unsupported saves", () => {
+  expect(decodeSave("not json")).toEqual({ kind: "invalid", reason: "The text is not valid JSON." });
+  expect(decodeSave("[1,2]")).toEqual({ kind: "invalid", reason: "The text is not a saved game." });
+  expect(decodeSave('{"version":3,"savedAt":1,"state":{}}')).toEqual({
+    kind: "invalid",
+    reason: "Save version 3 is newer than this game supports.",
   });
 });
 
-test("loadSave exposes a future timestamp as data without changing the saved state", () => {
-  expect(loadSave('{"state":{"amounts":{"dirt":1},"owned":{"woodenPickaxe":1}},"savedAt":9999}')).toEqual({
-    state: { amounts: { dirt: 1 }, owned: { woodenPickaxe: 1 } },
-    savedAt: 9999,
+test("decodeSave drops unknown ids, negative values, and non-numbers", () => {
+  expect(decodeSave('{"version":2,"savedAt":5,"state":{"amounts":{"dirt":-4,"wood":2,"unknownResource":9},"owned":{"woodenPickaxe":"1"}}}')).toEqual({
+    kind: "loaded",
+    version: 2,
+    savedAt: 5,
+    state: { amounts: { wood: 2 }, owned: {} },
   });
 });
 
-test("deserialize starts a new game when there is no save", () => {
-  expect(deserialize(null)).toEqual({ amounts: {}, owned: {} });
-});
-
-test("deserialize starts a new game when the save is not JSON", () => {
-  expect(deserialize("not json")).toEqual({ amounts: {}, owned: {} });
-});
-
-test("deserialize drops ids that no catalog lists", () => {
-  expect(
-    deserialize(
-      '{"amounts":{"dirt":4,"unknownResource":9},"owned":{"woodenPickaxe":1,"unknownUpgrade":2}}',
-    ),
-  ).toEqual({ amounts: { dirt: 4 }, owned: { woodenPickaxe: 1 } });
-});
-
-test("deserialize gives iron ore zero when loading a save from before it existed", () => {
-  expect(deserialize('{"amounts":{"dirt":4,"wood":2},"owned":{}}')).toEqual({
-    amounts: { dirt: 4, wood: 2 },
-    owned: {},
+test("decodeSave preserves initial values for missing fields", () => {
+  expect(decodeSave('{"version":2,"savedAt":5,"state":{"amounts":{"wood":2}}}')).toEqual({
+    kind: "loaded",
+    version: 2,
+    savedAt: 5,
+    state: { amounts: { wood: 2 }, owned: {} },
   });
 });
 
-test("deserialize gives stone zero when loading a save from before it existed", () => {
-  expect(deserialize('{"amounts":{"dirt":4,"wood":2},"owned":{}}')).toEqual({
-    amounts: { dirt: 4, wood: 2 },
-    owned: {},
-  });
-});
-
-test("deserialize drops negative values", () => {
-  expect(deserialize('{"amounts":{"dirt":-4,"wood":2},"owned":{"woodenPickaxe":-1}}')).toEqual({
-    amounts: { wood: 2 },
-    owned: {},
-  });
-});
-
-test("deserialize drops values that are not numbers", () => {
-  expect(deserialize('{"amounts":{"dirt":"4","wood":2},"owned":{"woodenPickaxe":"1"}}')).toEqual({
-    amounts: { wood: 2 },
-    owned: {},
-  });
+test("loadSave starts a new game for null and invalid text", () => {
+  expect(loadSave(null)).toEqual({ state: { amounts: {}, owned: {} }, savedAt: null });
+  expect(loadSave("not json")).toEqual({ state: { amounts: {}, owned: {} }, savedAt: null });
 });
