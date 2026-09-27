@@ -44,6 +44,13 @@ test("crafting consumes ingredients, produces Torch, and disables the button", (
   expect(button?.disabled).toBe(true);
 });
 
+test("Quarry and Coal mine follow Furnace in the upgrades list", () => {
+  openPage();
+  expect([...document.querySelectorAll("[data-upgrade] .name")].map((name) => name.textContent)).toEqual([
+    "Wooden pickaxe", "Wooden axe", "Furnace", "Quarry", "Coal mine",
+  ]);
+});
+
 test("declining reset keeps progress", () => {
   openPage(undefined, { confirm: () => false });
   document.querySelector<HTMLButtonElement>('[data-resource="wood"] button')?.click();
