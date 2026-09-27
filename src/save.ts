@@ -2,6 +2,8 @@ import { initialState } from "./game.ts";
 import type { GameState } from "./game.ts";
 import { resources } from "./resources.ts";
 import { upgrades } from "./upgrades.ts";
+import { tools } from "./tools.ts";
+import { zones } from "./zones.ts";
 
 export const currentSaveVersion = 2;
 
@@ -71,7 +73,7 @@ export function loadSave(text: string | null): LoadedSave {
 function parseState(value: SaveRecord): GameState {
   return {
     amounts: { ...initialState.amounts, ...keepCounts(value.amounts, resources.map((resource) => resource.id)) },
-    owned: { ...initialState.owned, ...keepCounts(value.owned, upgrades.map((upgrade) => upgrade.id)) },
+    owned: { ...initialState.owned, ...keepCounts(value.owned, [...upgrades, ...tools, ...zones].map((purchase) => purchase.id)) },
   };
 }
 
