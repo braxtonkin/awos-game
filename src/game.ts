@@ -20,11 +20,24 @@ export type GameState = {
   readonly stats: { readonly clicks: number; readonly ticks: number; readonly gathered: Amounts };
   readonly event: { readonly id: EventId; readonly secondsLeft: number } | null;
   readonly achievements: readonly AchievementId[];
+  readonly prestige: { readonly emeralds: number; readonly worlds: number };
 };
 
 export const tickMs = 1000;
 export const maxOfflineMs = 8 * 60 * 60 * 1000;
-export const initialState: GameState = { amounts: {}, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [] };
+export const initialState: GameState = { amounts: {}, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0 } };
+
+export function emeraldsForNewWorld(state: GameState): number {
+  const total = resources.reduce((sum, resource) => sum + (state.stats.gathered[resource.id] ?? 0), 0);
+  return Math.floor(Math.sqrt(total / 1000));
+}
+
+export function canStartNewWorld(state: GameState): boolean { return emeraldsForNewWorld(state) >= 10; }
+
+export function startNewWorld(state: GameState): GameState {
+  if (!canStartNewWorld(state)) return state;
+  return { ...initialState, achievements: state.achievements, prestige: { emeralds: state.prestige.emeralds + emeraldsForNewWorld(state), worlds: state.prestige.worlds + 1 } };
+}
 
 export function meets(state: GameState, condition: Condition): boolean {
   switch (condition.kind) {
@@ -109,7 +122,7 @@ export function isDiscovered(state: GameState, resourceId: ResourceId): boolean 
 export function clickPower(state: GameState): number {
   const power = tools.reduce((best, tool) => ownedCount(state, tool.id) > 0 ? Math.max(best, tool.clickPower) : best, 1);
   const event = events.find((candidate) => candidate.id === state.event?.id);
-  return event?.effect.kind === "clickPower" ? power * event.effect.factor : power;
+  return (event?.effect.kind === "clickPower" ? power * event.effect.factor : power) * (1 + 0.1 * state.prestige.emeralds);
 }
 
 export function mine(state: GameState, resourceId: ResourceId): GameState {
@@ -140,7 +153,7 @@ export function buy(state: GameState, id: PurchaseId): GameState {
 export function productionMultiplier(state: GameState, resourceId: ResourceId): number {
   const event = events.find((candidate) => candidate.id === state.event?.id);
   const eventFactor = event?.effect.kind === "production" && event.effect.resource === resourceId ? event.effect.factor : 1;
-  return (1 + 0.01 * state.achievements.length) * eventFactor;
+  return (1 + 0.01 * state.achievements.length) * eventFactor * (1 + 0.1 * state.prestige.emeralds);
 }
 
 export function tick(state: GameState): GameState {

@@ -13,6 +13,7 @@ const args = process.argv.slice(2);
 let ticks = 3600;
 let clicks = 2;
 let until: string | undefined;
+let world: number | undefined;
 let savePath: string | undefined;
 let checkSavePath: string | undefined;
 const expectations: { label: string; min: number; max: number }[] = [];
@@ -22,6 +23,7 @@ for (let index = 0; index < args.length; index += 1) {
   if (option === "--ticks" && value !== undefined) { ticks = Number(value); index += 1; }
   else if (option === "--clicks" && value !== undefined) { clicks = Number(value); index += 1; }
   else if (option === "--until" && value !== undefined) { until = value; index += 1; }
+  else if (option === "--world" && value !== undefined) { world = Number(value); index += 1; }
   else if (option === "--save" && value !== undefined) { savePath = value; index += 1; }
   else if (option === "--check-save" && value !== undefined) { checkSavePath = value; index += 1; }
   else if (option === "--expect" && value !== undefined) {
@@ -50,12 +52,12 @@ if (checkSavePath !== undefined) {
   }
 } else {
 const report = simulate({ ticks, clicksPerTick: clicks, script });
-for (const item of report.reached) console.log(`${item.label} ${item.tick}`);
+for (const item of report.reached) console.log(`${item.label} ${item.tick}${(item.world ?? 1) >= 2 ? ` world ${item.world}` : ""}`);
 for (const label of report.unmet) console.log(`unmet ${label}`);
 if (savePath !== undefined) writeFileSync(savePath, serialize(report.state, 1700000000000));
-let failed = until !== undefined && !report.reached.some((item) => item.label === until);
+let failed = until !== undefined && !report.reached.some((item) => item.label === until && (world === undefined || (item.world ?? 1) === world));
 for (const expectation of expectations) {
-  const item = report.reached.find((candidate) => candidate.label === expectation.label);
+  const item = report.reached.find((candidate) => candidate.label === expectation.label && (world === undefined || (candidate.world ?? 1) === world));
   if (item === undefined) {
     console.log(`FAIL ${expectation.label} not reached`);
     failed = true;

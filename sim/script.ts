@@ -36,4 +36,5 @@ export const script: readonly Goal[] = [
   { order: 330, own: "torchWorkshop", count: 2 },
   { order: 340, own: "deepCaves", count: 1 },
   { order: 390, own: "diamondPickaxe", count: 1 },
+  { order: 485, newWorld: true },
 ];
