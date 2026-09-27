@@ -8,6 +8,7 @@ export const eventSection: Section = {
   build({ root, state, update }) {
     const text = root.ownerDocument.createElement("p");
     text.className = "event-text";
+    text.setAttribute("role", "status");
     const time = root.ownerDocument.createElement("p");
     time.className = "event-time";
     const action = root.ownerDocument.createElement("button");

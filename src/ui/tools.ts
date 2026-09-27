@@ -3,6 +3,7 @@ import { formatClickPower, toolDetails } from "../format.ts";
 import { tools } from "../tools.ts";
 import type { ResourceId } from "../resources.ts";
 import type { Section } from "./section.ts";
+import { rowButton } from "./row-button.ts";
 
 export const toolsSection: Section = {
   id: "tools",
@@ -26,7 +27,7 @@ export const toolsSection: Section = {
         detail.textContent = line;
         return detail;
       }));
-      const button = document.createElement("button");
+      const button = rowButton(document, "Buy", tool.name);
       button.addEventListener("click", () => update(buy(state(), tool.id)));
       row.append(button);
       list.append(row);

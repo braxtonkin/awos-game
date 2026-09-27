@@ -2,6 +2,7 @@ import { amountOf, canMine, isDiscovered, mine } from "../game.ts";
 import { formatAmount } from "../format.ts";
 import { resources } from "../resources.ts";
 import type { Section } from "./section.ts";
+import { rowButton } from "./row-button.ts";
 
 export const resourcesSection: Section = {
   id: "resources",
@@ -21,8 +22,7 @@ export const resourcesSection: Section = {
       amount.className = "amount";
       row.append(name, amount);
       if (resource.perClick > 0) {
-        const button = document.createElement("button");
-        button.textContent = "Mine";
+        const button = rowButton(document, "Mine", resource.name);
         button.addEventListener("click", () => update(mine(state(), resource.id)));
         row.append(button);
       }

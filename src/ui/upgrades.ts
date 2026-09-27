@@ -3,6 +3,7 @@ import { upgradeDetails } from "../format.ts";
 import { upgrades } from "../upgrades.ts";
 import type { ResourceId } from "../resources.ts";
 import type { Section } from "./section.ts";
+import { rowButton } from "./row-button.ts";
 
 type Mode = 1 | 10 | "max";
 
@@ -36,9 +37,9 @@ export const upgradesSection: Section = {
       const owned = document.createElement("span");
       const detailLines = upgradeDetails(upgrade, {}, settings().numbers).map(() => document.createElement("span"));
       details.append(name, ...detailLines, owned);
-      const button = document.createElement("button");
+      const button = rowButton(document, "Buy", upgrade.name);
       button.addEventListener("click", () => update(buyMany(state(), upgrade.id, batch(upgrade.id))));
-      const pauseButton = upgrade.uses === undefined ? undefined : document.createElement("button");
+      const pauseButton = upgrade.uses === undefined ? undefined : rowButton(document, "Pause", upgrade.name);
       const paused = upgrade.uses === undefined ? undefined : document.createElement("span");
       if (pauseButton !== undefined && paused !== undefined) {
         pauseButton.addEventListener("click", () => update(togglePause(state(), upgrade.id)));
@@ -59,6 +60,7 @@ export const upgradesSection: Section = {
         if (pauseButton !== undefined && paused !== undefined) {
           const isPaused = state().paused.includes(upgrade.id);
           pauseButton.textContent = isPaused ? "Resume" : "Pause";
+          pauseButton.setAttribute("aria-label", `${pauseButton.textContent} ${upgrade.name}`);
           paused.textContent = isPaused ? "Paused" : "";
         }
       };
