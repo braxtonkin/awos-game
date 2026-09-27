@@ -255,7 +255,8 @@ function tickWithPlan(state: GameState, plan: TickPlan): GameState {
     const gained = (output[resource.id] ?? 0) + (consumedOutput[resource.id] ?? 0);
     if (gained !== 0) gathered[resource.id] = (gathered[resource.id] ?? 0) + gained;
   }
-  return earnAchievements({ ...result, amounts: finalAmounts, event: secondsLeft > 0 && state.event !== null ? { ...state.event, secondsLeft } : null, stats: { ...state.stats, ticks: state.stats.ticks + 1, gathered } });
+  const next = { ...result, amounts: finalAmounts, event: secondsLeft > 0 && state.event !== null ? { ...state.event, secondsLeft } : null, stats: { ...state.stats, ticks: state.stats.ticks + 1, gathered } };
+  return state.achievements.length === achievements.length ? next : earnAchievements(next);
 }
 
 export function canCraft(state: GameState, recipeId: RecipeId): boolean {
