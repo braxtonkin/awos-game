@@ -20,7 +20,7 @@ const migrations: readonly Migration[] = [
   (save) => ({ ...save, version: 2 }),
 ];
 
-export function serialize(state: Pick<GameState, "amounts" | "owned">, savedAt: number): string {
+export function serialize(state: GameState, savedAt: number): string {
   return JSON.stringify({ version: currentSaveVersion, savedAt, state });
 }
 
@@ -78,6 +78,11 @@ function parseState(value: SaveRecord): GameState {
   return {
     amounts: { ...initialState.amounts, ...keepCounts(value.amounts, resources.map((resource) => resource.id)) },
     owned: { ...initialState.owned, ...keepCounts(value.owned, [...upgrades, ...tools, ...zones].map((purchase) => purchase.id)) },
+    stats: {
+      clicks: keepCounts(value.stats, ["clicks"] as const).clicks ?? initialState.stats.clicks,
+      ticks: keepCounts(value.stats, ["ticks"] as const).ticks ?? initialState.stats.ticks,
+      gathered: { ...initialState.stats.gathered, ...keepCounts(isRecord(value.stats) ? value.stats.gathered : undefined, resources.map((resource) => resource.id)) },
+    },
   };
 }
 
