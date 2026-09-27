@@ -1,6 +1,7 @@
 import { resources } from "./resources.ts";
 import type { Amounts } from "./resources.ts";
 import type { Upgrade } from "./upgrades.ts";
+import type { Tool } from "./tools.ts";
 
 export function formatAmount(amount: number): string {
   if (amount < 1_000) return String(amount);
@@ -32,4 +33,12 @@ export function upgradeDetails(upgrade: Upgrade): string[] {
     ...(upgrade.uses === undefined ? [] : [`Uses: ${formatAmounts(upgrade.uses)} per second`]),
     `Makes: ${formatAmounts(upgrade.perTick)} per second`,
   ];
+}
+
+export function formatClickPower(power: number): string {
+  return `Click power: ×${power}`;
+}
+
+export function toolDetails(tool: Tool): string[] {
+  return [`Cost: ${formatAmounts(tool.cost)}`, formatClickPower(tool.clickPower)];
 }
