@@ -11,6 +11,8 @@ test("new world gain thresholds, resets progress, and preserves achievements", (
   expect(emeraldsForNewWorld(state)).toBe(10);
   expect(emeraldsForNewWorld(stateWith({ stats: { clicks: 0, ticks: 0, gathered: { wood: 99999 } } }))).toBe(9);
   expect(canStartNewWorld(state)).toBe(true);
+  const lifetimeState = stateWith({ stats: { clicks: 10, ticks: 100, gathered: { wood: 100000 } }, lifetime: { clicks: 5, ticks: 50, gathered: 1000 } });
+  expect(startNewWorld(lifetimeState).lifetime).toEqual({ clicks: 15, ticks: 150, gathered: 101000 });
   expect(startNewWorld(state)).toMatchObject({ amounts: {}, owned: {}, achievements: ["firstLog"], prestige: { emeralds: 10, worlds: 1 } });
   const ineligible = stateWith({ stats: { clicks: 0, ticks: 0, gathered: { wood: 99999 } } });
   expect(startNewWorld(ineligible)).toBe(ineligible);

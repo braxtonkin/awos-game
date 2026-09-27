@@ -19,6 +19,7 @@ export type GameState = {
   readonly owned: Partial<Record<PurchaseId, number>>;
   readonly paused: readonly UpgradeId[];
   readonly stats: { readonly clicks: number; readonly ticks: number; readonly gathered: Amounts };
+  readonly lifetime: { readonly clicks: number; readonly ticks: number; readonly gathered: number };
   readonly event: { readonly id: EventId; readonly secondsLeft: number } | null;
   readonly achievements: readonly AchievementId[];
   readonly prestige: { readonly emeralds: number; readonly worlds: number };
@@ -26,7 +27,7 @@ export type GameState = {
 
 export const tickMs = 1000;
 export const maxOfflineMs = 8 * 60 * 60 * 1000;
-export const initialState: GameState = { amounts: {}, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0 } };
+export const initialState: GameState = { amounts: {}, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, lifetime: { clicks: 0, ticks: 0, gathered: 0 }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0 } };
 
 export function emeraldsForNewWorld(state: GameState): number {
   const total = resources.reduce((sum, resource) => sum + (state.stats.gathered[resource.id] ?? 0), 0);
@@ -37,7 +38,7 @@ export function canStartNewWorld(state: GameState): boolean { return emeraldsFor
 
 export function startNewWorld(state: GameState): GameState {
   if (!canStartNewWorld(state)) return state;
-  return { ...initialState, achievements: state.achievements, prestige: { emeralds: state.prestige.emeralds + emeraldsForNewWorld(state), worlds: state.prestige.worlds + 1 } };
+  return { ...initialState, achievements: state.achievements, lifetime: { clicks: state.lifetime.clicks + state.stats.clicks, ticks: state.lifetime.ticks + state.stats.ticks, gathered: state.lifetime.gathered + resources.reduce((sum, resource) => sum + (state.stats.gathered[resource.id] ?? 0), 0) }, prestige: { emeralds: state.prestige.emeralds + emeraldsForNewWorld(state), worlds: state.prestige.worlds + 1 } };
 }
 
 export function togglePause(state: GameState, id: UpgradeId): GameState {
