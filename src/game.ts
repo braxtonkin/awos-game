@@ -17,6 +17,7 @@ export type PurchaseId = UpgradeId | ToolId | ZoneId;
 export type GameState = {
   readonly amounts: Amounts;
   readonly owned: Partial<Record<PurchaseId, number>>;
+  readonly paused: readonly UpgradeId[];
   readonly stats: { readonly clicks: number; readonly ticks: number; readonly gathered: Amounts };
   readonly event: { readonly id: EventId; readonly secondsLeft: number } | null;
   readonly achievements: readonly AchievementId[];
@@ -24,7 +25,11 @@ export type GameState = {
 
 export const tickMs = 1000;
 export const maxOfflineMs = 8 * 60 * 60 * 1000;
-export const initialState: GameState = { amounts: {}, owned: {}, stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [] };
+export const initialState: GameState = { amounts: {}, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, event: null, achievements: [] };
+
+export function togglePause(state: GameState, id: UpgradeId): GameState {
+  return { ...state, paused: state.paused.includes(id) ? state.paused.filter((pausedId) => pausedId !== id) : [...state.paused, id] };
+}
 
 export function meets(state: GameState, condition: Condition): boolean {
   switch (condition.kind) {
@@ -172,7 +177,9 @@ export function productionMultiplier(state: GameState, resourceId: ResourceId): 
 export function tick(state: GameState): GameState {
   const producing = upgrades.filter((upgrade: Upgrade) => upgrade.uses === undefined);
   const consuming = upgrades.filter((upgrade: Upgrade) => upgrade.uses !== undefined);
-  const output = producing.reduce<Amounts>((totals, upgrade) => {
+  const activeProducing = state.paused.length === 0 ? producing : producing.filter((upgrade) => !state.paused.includes(upgrade.id as UpgradeId));
+  const activeConsuming = state.paused.length === 0 ? consuming : consuming.filter((upgrade) => !state.paused.includes(upgrade.id as UpgradeId));
+  const output = activeProducing.reduce<Amounts>((totals, upgrade) => {
     const multiplied = resources.reduce<Amounts>((amounts, resource) => {
       const count = (upgrade.perTick as Amounts)[resource.id];
       if (count === undefined) return amounts;
@@ -182,7 +189,7 @@ export function tick(state: GameState): GameState {
   }, {});
   const produced = addAmounts(state, output, 1);
   const consumedOutput: Amounts = {};
-  const result = consuming.reduce((next, upgrade) => {
+  const result = activeConsuming.reduce((next, upgrade) => {
     let result = next;
     const uses: Amounts = upgrade.uses ?? {};
     for (let count = 0; count < ownedCount(state, upgrade.id); count += 1) {

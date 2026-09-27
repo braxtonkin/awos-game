@@ -1,4 +1,4 @@
-import { buyMany, costOfMany, isDiscovered, maxAffordable, ownedCount } from "../game.ts";
+import { buyMany, costOfMany, isDiscovered, maxAffordable, ownedCount, togglePause } from "../game.ts";
 import { upgradeDetails } from "../format.ts";
 import { upgrades } from "../upgrades.ts";
 import type { ResourceId } from "../resources.ts";
@@ -38,7 +38,12 @@ export const upgradesSection: Section = {
       details.append(name, ...detailLines, owned);
       const button = document.createElement("button");
       button.addEventListener("click", () => update(buyMany(state(), upgrade.id, batch(upgrade.id))));
-      row.append(details, button);
+      const pauseButton = upgrade.uses === undefined ? undefined : document.createElement("button");
+      const paused = upgrade.uses === undefined ? undefined : document.createElement("span");
+      if (pauseButton !== undefined && paused !== undefined) {
+        pauseButton.addEventListener("click", () => update(togglePause(state(), upgrade.id)));
+        row.append(details, button, pauseButton, paused);
+      } else row.append(details, button);
       list.append(row);
       return () => {
         const count = batch(upgrade.id);
@@ -51,6 +56,11 @@ export const upgradesSection: Section = {
         const max = mode === "max";
         button.textContent = max ? `Buy max (${count})` : count === 1 ? "Buy" : `Buy ${count}`;
         button.disabled = count === 0 || !affordable(upgrade.id, count);
+        if (pauseButton !== undefined && paused !== undefined) {
+          const isPaused = state().paused.includes(upgrade.id);
+          pauseButton.textContent = isPaused ? "Resume" : "Pause";
+          paused.textContent = isPaused ? "Paused" : "";
+        }
       };
     });
     function batch(id: typeof upgrades[number]["id"]): number {

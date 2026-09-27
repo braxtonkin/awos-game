@@ -2,6 +2,7 @@ import { initialState } from "./game.ts";
 import type { GameState } from "./game.ts";
 import { resources } from "./resources.ts";
 import { upgrades } from "./upgrades.ts";
+import type { UpgradeId } from "./upgrades.ts";
 import { tools } from "./tools.ts";
 import { zones } from "./zones.ts";
 import { events } from "./events.ts";
@@ -86,6 +87,7 @@ function parseState(value: SaveRecord): GameState {
   return {
     amounts: { ...initialState.amounts, ...keepCounts(value.amounts, resources.map((resource) => resource.id)) },
     owned: { ...initialState.owned, ...keepCounts(value.owned, [...upgrades, ...tools, ...zones].map((purchase) => purchase.id)) },
+    paused: keepUpgradeIds(value.paused),
     stats: {
       clicks: keepCounts(value.stats, ["clicks"] as const).clicks ?? initialState.stats.clicks,
       ticks: keepCounts(value.stats, ["ticks"] as const).ticks ?? initialState.stats.ticks,
@@ -94,6 +96,14 @@ function parseState(value: SaveRecord): GameState {
     event,
     achievements: keepAchievementIds(value.achievements),
   };
+}
+
+function keepUpgradeIds(value: unknown): UpgradeId[] {
+  const known = new Set<string>(upgrades.map((upgrade) => upgrade.id));
+  if (!Array.isArray(value)) return [];
+  const kept: UpgradeId[] = [];
+  for (const id of value) if (typeof id === "string" && known.has(id) && !kept.includes(id as UpgradeId)) kept.push(id as UpgradeId);
+  return kept;
 }
 
 function keepAchievementIds(value: unknown): AchievementId[] {
