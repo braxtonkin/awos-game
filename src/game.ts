@@ -50,6 +50,10 @@ export function canMine(state: GameState, resourceId: ResourceId): boolean {
   );
 }
 
+export function isDiscovered(state: GameState, resourceId: ResourceId): boolean {
+  return canMine(state, resourceId) || amountOf(state, resourceId) > 0 || (state.stats.gathered[resourceId] ?? 0) > 0;
+}
+
 export function clickPower(state: GameState): number {
   return tools.reduce((best, tool) => ownedCount(state, tool.id) > 0 ? Math.max(best, tool.clickPower) : best, 1);
 }

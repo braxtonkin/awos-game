@@ -1,6 +1,7 @@
-import { buy, canBuy, clickPower, ownedCount } from "../game.ts";
+import { buy, canBuy, clickPower, isDiscovered, ownedCount } from "../game.ts";
 import { formatClickPower, toolDetails } from "../format.ts";
 import { tools } from "../tools.ts";
+import type { ResourceId } from "../resources.ts";
 import type { Section } from "./section.ts";
 
 export const toolsSection: Section = {
@@ -30,6 +31,7 @@ export const toolsSection: Section = {
       row.append(button);
       list.append(row);
       return () => {
+        row.hidden = !(Object.keys(tool.cost) as ResourceId[]).every((id) => isDiscovered(state(), id));
         const owned = ownedCount(state(), tool.id) > 0;
         button.textContent = owned ? "Owned" : "Buy";
         button.disabled = owned || !canBuy(state(), tool.id);

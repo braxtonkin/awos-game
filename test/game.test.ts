@@ -1,6 +1,14 @@
 import { expect, test } from "vitest";
-import { buy, canBuy, catchUp, costOf, initialState, mine, tick } from "../src/game.ts";
+import { buy, canBuy, catchUp, costOf, initialState, isDiscovered, mine, tick } from "../src/game.ts";
 import { stateWith } from "./state.ts";
+import type { ResourceId } from "../src/resources.ts";
+
+test("discovery includes mineable resources, held resources, and gathered resources", () => {
+  expect(isDiscovered(stateWith({}), "dirt")).toBe(true);
+  expect(isDiscovered(stateWith({ amounts: { ironOre: 1 } }), "ironOre")).toBe(true);
+  expect(isDiscovered(stateWith({ stats: { clicks: 0, ticks: 0, gathered: { diamond: 1 } as never } }), "diamond" as ResourceId)).toBe(true);
+  expect(isDiscovered(stateWith({}), "ironOre")).toBe(false);
+});
 
 test("mining dirt in a new game gives 1 dirt", () => {
   expect(mine(stateWith({}), "dirt").amounts).toEqual({ dirt: 1 });
