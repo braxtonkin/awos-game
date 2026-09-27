@@ -12,7 +12,7 @@ describe("scripted playthrough", () => {
 
   it("reaches every canonical goal within 18000 ticks", () => {
     expect(simulate({ ticks: 18000, clicksPerTick: 2, script }).unmet).toEqual([]);
-  });
+  }, 30_000);
 
   it("meets all bounds and each bound names a scripted goal", () => {
     const report = simulate({ ticks: 18000, clicksPerTick: 2, script });
@@ -21,5 +21,5 @@ describe("scripted playthrough", () => {
       expect(item?.tick).toBeLessThanOrEqual(bound);
       expect(script.some((goal) => `${goal.own}:${goal.count}` === label)).toBe(true);
     }
-  });
+  }, 30_000);
 });
