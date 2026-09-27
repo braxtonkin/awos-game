@@ -8,8 +8,8 @@ import { stateWith } from "./state.ts";
 
 test("catalogs expose the ordered entries", () => {
   expect(tools.map(({ id }) => id)).toEqual(["stonePickaxe", "ironPickaxe", "diamondPickaxe", "netheritePickaxe"]);
-  expect(zones.map(({ id }) => id)).toEqual(["surface", "caves", "deepCaves", "nether"]);
-  expect(recipes.map(({ id }) => id)).toEqual(["torch", "ironIngot", "goldIngot", "netheriteIngot", "blazePowder"]);
+  expect(zones.map(({ id }) => id)).toEqual(["surface", "caves", "deepCaves", "nether", "end"]);
+  expect(recipes.map(({ id }) => id)).toEqual(["torch", "ironIngot", "goldIngot", "netheriteIngot", "blazePowder", "eyeOfEnder"]);
 });
 
 test("purchase costs and tool purchases", () => {

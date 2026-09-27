@@ -51,6 +51,8 @@ export function meets(state: GameState, condition: Condition): boolean {
     case "owned": return ownedCount(state, condition.id) >= condition.atLeast;
     case "machines": return upgrades.reduce((sum, upgrade) => sum + ownedCount(state, upgrade.id), 0) >= condition.atLeast;
     case "clicks": return state.stats.clicks >= condition.atLeast;
+    case "worlds": return state.prestige.worlds >= condition.atLeast;
+    case "emeralds": return state.prestige.emeralds >= condition.atLeast;
     default: return assertNever(condition);
   }
 }

@@ -8,6 +8,7 @@ export const recipes = [
   { id: "goldIngot", name: "Gold ingot", inputs: { goldOre: 1, coal: 1 }, outputs: { goldIngot: 1 } },
   { id: "netheriteIngot", name: "Netherite ingot", inputs: { ancientDebris: 4, goldIngot: 4 }, outputs: { netheriteIngot: 1 } },
   { id: "blazePowder", name: "Blaze powder", inputs: { blazeRod: 1 }, outputs: { blazePowder: 2 } },
+  { id: "eyeOfEnder", name: "Eye of ender", inputs: { enderPearl: 300, blazePowder: 300 }, outputs: { eyeOfEnder: 1 } },
 ] as const satisfies readonly Recipe[];
 
 export type RecipeId = (typeof recipes)[number]["id"];

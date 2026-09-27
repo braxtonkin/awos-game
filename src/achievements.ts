@@ -6,7 +6,9 @@ export type Condition =
   | { readonly kind: "gatheredTotal"; readonly atLeast: number }
   | { readonly kind: "owned"; readonly id: PurchaseId; readonly atLeast: number }
   | { readonly kind: "machines"; readonly atLeast: number }
-  | { readonly kind: "clicks"; readonly atLeast: number };
+  | { readonly kind: "clicks"; readonly atLeast: number }
+  | { readonly kind: "worlds"; readonly atLeast: number }
+  | { readonly kind: "emeralds"; readonly atLeast: number };
 
 export const achievements = [
   { id: "firstLog", name: "First log", description: "Gather 1 Wood", when: { kind: "gathered", resource: "wood", atLeast: 1 } },
@@ -29,6 +31,16 @@ export const achievements = [
   { id: "torchlight", name: "Torchlight", description: "Gather 10,000 Torches", when: { kind: "gathered", resource: "torch", atLeast: 10000 } },
   { id: "obsidianWall", name: "Obsidian wall", description: "Gather 1,000 Obsidian", when: { kind: "gathered", resource: "obsidian", atLeast: 1000 } },
   { id: "millionaire", name: "Millionaire", description: "Gather 1,000,000 resources in one world", when: { kind: "gatheredTotal", atLeast: 1000000 } },
+  { id: "tooHot", name: "Too hot", description: "Reach the Nether", when: { kind: "owned", id: "nether", atLeast: 1 } },
+  { id: "netheriteTools", name: "Netherite tools", description: "Own a Netherite pickaxe", when: { kind: "owned", id: "netheritePickaxe", atLeast: 1 } },
+  { id: "blazing", name: "Blazing", description: "Gather 1,000 Blaze rods", when: { kind: "gathered", resource: "blazeRod", atLeast: 1000 } },
+  { id: "pearlDiver", name: "Pearl diver", description: "Gather 1,000 Ender pearls", when: { kind: "gathered", resource: "enderPearl", atLeast: 1000 } },
+  { id: "ancientHistory", name: "Ancient history", description: "Gather 100 Ancient debris", when: { kind: "gathered", resource: "ancientDebris", atLeast: 100 } },
+  { id: "freshStart", name: "Fresh start", description: "Start a new world", when: { kind: "worlds", atLeast: 1 } },
+  { id: "worldHopper", name: "World hopper", description: "Start 5 new worlds", when: { kind: "worlds", atLeast: 5 } },
+  { id: "emeraldHoard", name: "Emerald hoard", description: "Hold 25 Emeralds", when: { kind: "emeralds", atLeast: 25 } },
+  { id: "lavaLord", name: "Lava lord", description: "Own 10 Lava pumps", when: { kind: "owned", id: "lavaPump", atLeast: 10 } },
+  { id: "tenMillion", name: "Ten million", description: "Gather 10,000,000 resources in one world", when: { kind: "gatheredTotal", atLeast: 10000000 } },
 ] as const satisfies readonly { id: string; name: string; description: string; when: Condition }[];
 
 export type AchievementId = typeof achievements[number]["id"];
