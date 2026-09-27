@@ -4,6 +4,7 @@ import { toolsSection } from "./tools.ts";
 import { upgradesSection } from "./upgrades.ts";
 import { craftingSection } from "./crafting.ts";
 import { resetSection } from "./reset.ts";
+import { statsSection } from "./stats.ts";
 import { saveSection } from "./save.ts";
 
 export const sections: readonly Section[] = [
@@ -11,6 +12,7 @@ export const sections: readonly Section[] = [
   toolsSection,
   upgradesSection,
   craftingSection,
+  statsSection,
   saveSection,
   resetSection,
 ];
