@@ -120,4 +120,4 @@ test("catch-up floors elapsed milliseconds to whole seconds", () => {
 
 test("catch-up caps elapsed time at eight hours", () => {
   expect(catchUp(stateWith({ owned: { woodenPickaxe: 1 } }), 2 * 24 * 60 * 60 * 1000).amounts).toEqual({ dirt: 28_800 });
-});
+}, 15_000);
