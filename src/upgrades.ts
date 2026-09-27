@@ -17,6 +17,10 @@ export const upgrades = [
   { id: "ironMine", name: "Iron mine", cost: { stone: 400, torch: 50 }, perTick: { ironOre: 2 }, uses: undefined },
   { id: "smelter", name: "Smelter", cost: { stone: 300, ironIngot: 20 }, perTick: { ironIngot: 2 }, uses: { ironOre: 2, charcoal: 1 } },
   { id: "torchWorkshop", name: "Torch workshop", cost: { wood: 300, ironIngot: 10 }, perTick: { torch: 4 }, uses: { coal: 1, wood: 1 } },
+  { id: "goldMine", name: "Gold mine", cost: { ironIngot: 200, torch: 200 }, perTick: { goldOre: 2 }, uses: undefined },
+  { id: "goldSmelter", name: "Gold smelter", cost: { stone: 1000, goldIngot: 20 }, perTick: { goldIngot: 2 }, uses: { goldOre: 2, coal: 1 } },
+  { id: "lavaPump", name: "Lava pump", cost: { ironIngot: 400, redstone: 100 }, perTick: { obsidian: 1 }, uses: undefined },
+  { id: "diamondDrill", name: "Diamond drill", cost: { ironIngot: 600, redstone: 200 }, perTick: { diamond: 1 }, uses: undefined },
 ] as const satisfies readonly Upgrade[];
 
 export type UpgradeId = (typeof upgrades)[number]["id"];
