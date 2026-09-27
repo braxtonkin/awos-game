@@ -10,6 +10,7 @@ import { achievements } from "./achievements.ts";
 import type { AchievementId } from "./achievements.ts";
 import { perks } from "./perks.ts";
 import type { PerkId } from "./perks.ts";
+import { enderDragon } from "./dragon.ts";
 
 export const currentSaveVersion = 2;
 
@@ -88,6 +89,7 @@ function parseState(value: SaveRecord): GameState {
     : null;
   return {
     amounts: { ...initialState.amounts, ...keepCounts(value.amounts, resources.map((resource) => resource.id)) },
+    dragonHealth: Math.min(enderDragon.health, Math.max(0, typeof value.dragonHealth === "number" && Number.isFinite(value.dragonHealth) ? value.dragonHealth : initialState.dragonHealth)),
     owned: { ...initialState.owned, ...keepCounts(value.owned, [...upgrades, ...tools, ...zones].map((purchase) => purchase.id)) },
     paused: keepUpgradeIds(value.paused),
     stats: {

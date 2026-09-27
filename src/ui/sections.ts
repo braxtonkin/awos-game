@@ -11,12 +11,14 @@ import { eventSection } from "./event.ts";
 import { achievementsSection } from "./achievements.ts";
 import { newWorldSection } from "./new-world.ts";
 import { settingsSection } from "./settings.ts";
+import { dragonSection } from "./dragon.ts";
 
 export const sections: readonly Section[] = [
   eventSection,
   resourcesSection,
   toolsSection,
   zonesSection,
+  dragonSection,
   upgradesSection,
   craftingSection,
   statsSection,

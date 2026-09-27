@@ -14,10 +14,12 @@ import type { AchievementId, Condition } from "./achievements.ts";
 import type { EventId } from "./events.ts";
 import { perks } from "./perks.ts";
 import type { PerkId } from "./perks.ts";
+import { enderDragon, golemDamage } from "./dragon.ts";
 
 export type PurchaseId = UpgradeId | ToolId | ZoneId;
 export type GameState = {
   readonly amounts: Amounts;
+  readonly dragonHealth: number;
   readonly owned: Partial<Record<PurchaseId, number>>;
   readonly paused: readonly UpgradeId[];
   readonly stats: { readonly clicks: number; readonly ticks: number; readonly gathered: Amounts };
@@ -29,7 +31,7 @@ export type GameState = {
 
 export const tickMs = 1000;
 export const maxOfflineMs = 8 * 60 * 60 * 1000;
-export const initialState: GameState = { amounts: {}, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, lifetime: { clicks: 0, ticks: 0, gathered: 0 }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } };
+export const initialState: GameState = { amounts: {}, dragonHealth: enderDragon.health, owned: {}, paused: [], stats: { clicks: 0, ticks: 0, gathered: {} }, lifetime: { clicks: 0, ticks: 0, gathered: 0 }, event: null, achievements: [], prestige: { emeralds: 0, worlds: 0, perks: [] } };
 
 export function buyPerk(state: GameState, id: PerkId): GameState {
   const perk = perks.find((candidate) => candidate.id === id);
@@ -39,7 +41,12 @@ export function buyPerk(state: GameState, id: PerkId): GameState {
 
 export function emeraldsForNewWorld(state: GameState): number {
   const total = resources.reduce((sum, resource) => sum + (state.stats.gathered[resource.id] ?? 0), 0);
-  return Math.floor(Math.sqrt(total / 1000));
+  return Math.floor(Math.sqrt(total / 1000)) + (state.dragonHealth === 0 ? 10 : 0);
+}
+
+export function attack(state: GameState): GameState {
+  if (!zoneReached(state, "end") || state.dragonHealth <= 0) return state;
+  return earnAchievements({ ...state, dragonHealth: Math.max(0, state.dragonHealth - enderDragon.clickDamage * clickPower(state)), stats: { ...state.stats, clicks: state.stats.clicks + 1 } });
 }
 
 export function canStartNewWorld(state: GameState): boolean { return emeraldsForNewWorld(state) >= 10; }
@@ -63,6 +70,7 @@ export function meets(state: GameState, condition: Condition): boolean {
     case "clicks": return state.stats.clicks >= condition.atLeast;
     case "worlds": return state.prestige.worlds >= condition.atLeast;
     case "emeralds": return state.prestige.emeralds >= condition.atLeast;
+    case "dragonDefeated": return state.dragonHealth === 0;
     default: return assertNever(condition);
   }
 }
@@ -270,7 +278,8 @@ function tickWithPlan(state: GameState, plan: TickPlan, checkAchievements = true
     const gained = (output[resource.id] ?? 0) + (consumedOutput[resource.id] ?? 0);
     if (gained !== 0) gathered[resource.id] = (gathered[resource.id] ?? 0) + gained;
   }
-  const next = { ...result, amounts: finalAmounts, event: secondsLeft > 0 && state.event !== null ? { ...state.event, secondsLeft } : null, stats: { ...state.stats, ticks: state.stats.ticks + 1, gathered } };
+  const dragonHealth = zoneReached(state, "end") && state.dragonHealth > 0 ? Math.max(0, state.dragonHealth - ownedCount(state, "ironGolem") * golemDamage * (1 + 0.1 * state.prestige.emeralds)) : state.dragonHealth;
+  const next = { ...result, dragonHealth, amounts: finalAmounts, event: secondsLeft > 0 && state.event !== null ? { ...state.event, secondsLeft } : null, stats: { ...state.stats, ticks: state.stats.ticks + 1, gathered } };
   return !checkAchievements || state.achievements.length === achievements.length ? next : earnAchievements(next);
 }
 

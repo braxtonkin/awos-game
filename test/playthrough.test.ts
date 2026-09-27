@@ -19,7 +19,7 @@ describe("scripted playthrough", () => {
     for (const [label, bound] of Object.entries(bounds)) {
       const item = report.reached.find((goal) => goal.label === label);
       expect(item?.tick).toBeLessThanOrEqual(bound);
-      expect(script.some((goal) => "newWorld" in goal ? label === "newWorld" : `${goal.own}:${goal.count}` === label)).toBe(true);
+      expect(script.some((goal) => "newWorld" in goal ? label === "newWorld" : "defeat" in goal ? goal.defeat === label : `${goal.own}:${goal.count}` === label)).toBe(true);
     }
   }, 30_000);
 });

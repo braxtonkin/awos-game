@@ -8,7 +8,8 @@ export type Condition =
   | { readonly kind: "machines"; readonly atLeast: number }
   | { readonly kind: "clicks"; readonly atLeast: number }
   | { readonly kind: "worlds"; readonly atLeast: number }
-  | { readonly kind: "emeralds"; readonly atLeast: number };
+  | { readonly kind: "emeralds"; readonly atLeast: number }
+  | { readonly kind: "dragonDefeated" };
 
 export const achievements = [
   { id: "firstLog", name: "First log", description: "Gather 1 Wood", when: { kind: "gathered", resource: "wood", atLeast: 1 } },
@@ -41,6 +42,7 @@ export const achievements = [
   { id: "emeraldHoard", name: "Emerald hoard", description: "Hold 25 Emeralds", when: { kind: "emeralds", atLeast: 25 } },
   { id: "lavaLord", name: "Lava lord", description: "Own 10 Lava pumps", when: { kind: "owned", id: "lavaPump", atLeast: 10 } },
   { id: "tenMillion", name: "Ten million", description: "Gather 10,000,000 resources in one world", when: { kind: "gatheredTotal", atLeast: 10000000 } },
+  { id: "dragonSlayer", name: "Dragon slayer", description: "Defeat the Ender Dragon", when: { kind: "dragonDefeated" } },
 ] as const satisfies readonly { id: string; name: string; description: string; when: Condition }[];
 
 export type AchievementId = typeof achievements[number]["id"];

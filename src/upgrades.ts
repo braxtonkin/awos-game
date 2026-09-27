@@ -24,6 +24,7 @@ export const upgrades = [
   { id: "blazeFarm", name: "Blaze farm", cost: { netherrack: 300, obsidian: 50 }, perTick: { blazeRod: 2 }, uses: undefined },
   { id: "endermanFarm", name: "Enderman farm", cost: { netherrack: 300, netherQuartz: 100 }, perTick: { enderPearl: 2 }, uses: undefined },
   { id: "debrisDrill", name: "Debris drill", cost: { diamond: 200, netherQuartz: 200 }, perTick: { ancientDebris: 1 }, uses: undefined },
+  { id: "ironGolem", name: "Iron golem", cost: { ironIngot: 3000, endStone: 500 }, perTick: {}, uses: undefined },
 ] as const satisfies readonly Upgrade[];
 
 export type UpgradeId = (typeof upgrades)[number]["id"];

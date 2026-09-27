@@ -5,14 +5,14 @@
     "ironOre": 288929.79999994935,
     "coal": 38990.899999999434,
     "stone": 673385.8000003642,
-    "charcoal": 0.5800000000182415,
-    "ironIngot": 449735.5400017716,
-    "torch": 48391.64000000233,
+    "charcoal": 0.5799999999910721,
+    "ironIngot": 449735.5400000273,
+    "torch": 48391.64000000224,
     "goldOre": 97385.79999996739,
     "redstone": 1000,
     "diamond": 337192.9000001827,
     "obsidian": 337192.9000001827,
-    "goldIngot": 673385.8000006853,
+    "goldIngot": 673385.8000003642,
     "netherrack": 1000,
     "netherQuartz": 1000,
     "ancientDebris": 337192.9000001827,
@@ -38,7 +38,8 @@
     "diamondDrill": 10,
     "blazeFarm": 10,
     "endermanFarm": 10,
-    "debrisDrill": 10
+    "debrisDrill": 10,
+    "ironGolem": 10
   },
   "paused": [],
   "stats": {
@@ -91,5 +92,6 @@
     "emeralds": 0,
     "worlds": 0,
     "perks": []
-  }
+  },
+  "dragonHealth": 200000
 }
