@@ -103,7 +103,7 @@ test("Quarry, Coal mine, and automation machines follow Furnace in the upgrades 
   openPage();
   expect([...document.querySelectorAll("[data-upgrade] .name")].map((name) => name.textContent)).toEqual([
     "Wooden pickaxe", "Wooden axe", "Furnace", "Quarry", "Coal mine", "Iron mine", "Smelter", "Torch workshop",
-    "Gold mine", "Gold smelter", "Lava pump", "Diamond drill",
+    "Gold mine", "Gold smelter", "Lava pump", "Diamond drill", "Blaze farm", "Enderman farm", "Debris drill",
   ]);
 });
 
